@@ -42,7 +42,9 @@ foldDoc  vacio fTexto fLinea doc = case doc of
 infixr 6 <+>
 
 (<+>) :: Doc -> Doc -> Doc
-d1 <+> d2 = error "PENDIENTE: Ejercicio 2"
+(<+>) Vacio = id
+(<+>) (Texto s d) = \d2 -> (Texto s d2)
+(<+>) (Linea n d) = \d2 -> (Linea n d2)
 
 indentar :: Int -> Doc -> Doc
 indentar i = error "PENDIENTE: Ejercicio 3"
