@@ -38,20 +38,47 @@ foldDoc  vacio fTexto fLinea doc = case doc of
           Linea y documento -> fLinea y (rec documento)
           where rec = foldDoc vacio fTexto fLinea 
 
+
+
 -- NOTA: Se declara `infixr 6 <+>` para que `d1 <+> d2 <+> d3` sea equivalente a `d1 <+> (d2 <+> d3)`
 -- También permite que expresiones como `texto "a" <+> linea <+> texto "c"` sean válidas sin la necesidad de usar paréntesis.
---infixr 6 <+>
+infixr 6 <+>
+
+(<+>) :: Doc -> Doc -> Doc
+(<+>) = foldDoc id (\ x rec -> \doc -> if esProximoTexto (rec doc) then añadirTextoAlPrimero doc x else Texto x (rec doc)) (\ n rec -> \doc -> Linea n (rec doc) ) 
+
+esVacio:: Doc -> Bool
+esVacio Vacio = True
+esVacio _ = False
+
+esProximoTexto:: Doc -> Bool
+esProximoTexto (Texto _ _) = True
+esProximoTexto _ = False
+
+añadirTextoAlPrimero :: Doc ->String ->  Doc 
+añadirTextoAlPrimero doc s1 = case doc of 
+                            Vacio -> Vacio
+                            Linea n d -> Linea n d
+                            Texto s2 d -> Texto (s1++s2) d
+
+--(texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b")
 
 --(<+>) :: Doc -> Doc -> Doc
 --(<+>) = foldDoc id (\ x rec -> \doc -> Texto x (rec doc)) (\ n rec -> \doc -> Linea n (rec doc) ) 
-concat2 :: Doc -> Doc -> Doc
-concat2 Vacio = id
-concat2 (Texto s d) = \d2 -> case d2 of 
-                              Vacio -> Texto s d 
-                              Texto s2 doc -> Texto (s ++ s2) (concat2 d doc)
-                              Linea n2 doc -> Texto s (concat2 d (Linea n2 doc))                            
-concat2 (Linea n d) = \d2 -> Linea n concat2 d d2
 
+--concat2:: Doc -> Doc -> Doc
+--concat2 Vacio = id 
+--concat2 (Texto s d) = \d2 -> Texto s (concat2 d d2)
+--concat2 (Linea n d) = \d2 -> Linea n (concat2 d d2)
+
+
+--concat3:: Doc -> Doc -> Doc
+--concat3 Vacio = id 
+--concat3 (Texto s d) = \d2 ->  case d2 of 
+--                              Vacio ->  Texto s (concat3 d d2)
+--                              Texto s2 doc -> if esVacio d then concat3 d (Texto (s++s2) doc) else Texto s (concat3 d d2)
+--                              Linea n2 doc -> Texto s (concat3 d d2)
+--concat3 (Linea n d) = \d2 -> Linea n (concat3 d d2)
 
 indentar :: Int -> Doc -> Doc
 indentar i = error "PENDIENTE: Ejercicio 3"
