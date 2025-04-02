@@ -61,7 +61,6 @@ añadirTextoAlPrimero doc s1 = case doc of
                             Linea n d -> Linea n d
                             Texto s2 d -> Texto (s1++s2) d
 
-
 -- consultar ejercicio
 indentar :: Int -> Doc -> Doc
 indentar _ Vacio = Vacio
@@ -69,9 +68,15 @@ indentar n (Texto s d) = Texto s (indentarPrima d n)
 indentar n1 doc = indentarPrima doc n1
 
 indentarPrima :: Doc -> Int -> Doc
+--indentarPrima Vacio _ = Vacio
+--indentarPrima (Texto s d) n = Texto s (indentarPrima d n)
+--indentarPrima (Linea n1 d) n2 = Linea (n1+n2) (indentarPrima d n2)
 indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 
 mostrar :: Doc -> String
+--mostrar Vacio = ""
+--mostrar (Texto s d) = s ++ mostrar d
+--mostrar (Linea n d) = "\n" ++ nEspacios n ++ mostrar d
 mostrar = foldDoc ([]) (\s rec -> s ++ rec) (\n rec ->"\n" ++ nEspacios n ++ rec)
 
 nEspacios:: Int -> String
