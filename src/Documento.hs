@@ -10,6 +10,7 @@ module Documento
     imprimir,
   )
 where
+import Data.Foldable (Foldable(fold))
 
 data Doc
   = Vacio
@@ -28,7 +29,7 @@ texto t | '\n' `elem` t = error "El texto no debe contener saltos de línea"
 texto [] = Vacio
 texto t = Texto t Vacio
 
--- foldDoc :: ... PENDIENTE: Ejercicio 1 ...
+
 
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
 foldDoc  vacio fTexto fLinea doc = case doc of
@@ -39,12 +40,18 @@ foldDoc  vacio fTexto fLinea doc = case doc of
 
 -- NOTA: Se declara `infixr 6 <+>` para que `d1 <+> d2 <+> d3` sea equivalente a `d1 <+> (d2 <+> d3)`
 -- También permite que expresiones como `texto "a" <+> linea <+> texto "c"` sean válidas sin la necesidad de usar paréntesis.
-infixr 6 <+>
+--infixr 6 <+>
 
-(<+>) :: Doc -> Doc -> Doc
-(<+>) Vacio = id
-(<+>) (Texto s d) = \d2 -> (Texto s d2)
-(<+>) (Linea n d) = \d2 -> (Linea n d2)
+--(<+>) :: Doc -> Doc -> Doc
+--(<+>) = foldDoc id (\ x rec -> \doc -> Texto x (rec doc)) (\ n rec -> \doc -> Linea n (rec doc) ) 
+concat2 :: Doc -> Doc -> Doc
+concat2 Vacio = id
+concat2 (Texto s d) = \d2 -> case d2 of 
+                              Vacio -> Texto s d 
+                              Texto s2 doc -> Texto (s ++ s2) (concat2 d doc)
+                              Linea n2 doc -> Texto s (concat2 d (Linea n2 doc))                            
+concat2 (Linea n d) = \d2 -> Linea n concat2 d d2
+
 
 indentar :: Int -> Doc -> Doc
 indentar i = error "PENDIENTE: Ejercicio 3"
