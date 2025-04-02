@@ -61,36 +61,23 @@ añadirTextoAlPrimero doc s1 = case doc of
                             Linea n d -> Linea n d
                             Texto s2 d -> Texto (s1++s2) d
 
---(texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b")
 
---(<+>) :: Doc -> Doc -> Doc
---(<+>) = foldDoc id (\ x rec -> \doc -> Texto x (rec doc)) (\ n rec -> \doc -> Linea n (rec doc) ) 
-
---concat2:: Doc -> Doc -> Doc
---concat2 Vacio = id 
---concat2 (Texto s d) = \d2 -> Texto s (concat2 d d2)
---concat2 (Linea n d) = \d2 -> Linea n (concat2 d d2)
-
-
---concat3:: Doc -> Doc -> Doc
---concat3 Vacio = id 
---concat3 (Texto s d) = \d2 ->  case d2 of 
---                              Vacio ->  Texto s (concat3 d d2)
---                              Texto s2 doc -> if esVacio d then concat3 d (Texto (s++s2) doc) else Texto s (concat3 d d2)
---                              Linea n2 doc -> Texto s (concat3 d d2)
---concat3 (Linea n d) = \d2 -> Linea n (concat3 d d2)
-
+-- consultar ejercicio
 indentar :: Int -> Doc -> Doc
-indentar i = error "PENDIENTE: Ejercicio 3"
+indentar _ Vacio = Vacio
+indentar n (Texto s d) = Texto s (indentarPrima d n)
+indentar n1 doc = indentarPrima doc n1
+
+indentarPrima :: Doc -> Int -> Doc
+indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 
 mostrar :: Doc -> String
-mostrar = error "PENDIENTE: Ejercicio 4"
+mostrar = foldDoc ([]) (\s rec -> s ++ rec) (\n rec ->"\n" ++ nEspacios n ++ rec)
 
--- | Función dada que imprime un documento en pantalla
-
--- ghci> imprimir (Texto "abc" (Linea 2 (Texto "def" Vacio)))
--- abc
---   def
+nEspacios:: Int -> String
+nEspacios n = [const ' ' x | x <- [1..n] ]
+convetirLineaAString :: Doc -> String
+convetirLineaAString (Linea n _) = [] 
 
 imprimir :: Doc -> IO ()
 imprimir d = putStrLn (mostrar d)
