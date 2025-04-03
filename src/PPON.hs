@@ -9,10 +9,18 @@ data PPON
   deriving (Eq, Show)
 
 pponAtomico :: PPON -> Bool
-pponAtomico = error "PENDIENTE: Ejercicio 5"
+pponAtomico (ObjetoPP _) = False
+pponAtomico _ = True
 
 pponObjetoSimple :: PPON -> Bool
-pponObjetoSimple = error "PENDIENTE: Ejercicio 6"
+pponObjetoSimple (TextoPP _) = False
+pponObjetoSimple (IntPP _) = False
+pponObjetoSimple (ObjetoPP xs) = sonTodosAtomicos xs
+
+sonTodosAtomicos :: [(String, PPON)] -> Bool
+--sonTodosAtomicos [] = True
+--sonTodosAtomicos ((s,p):xs) = pponAtomico p && sonTodosAtomicos xs
+sonTodosAtomicos = foldr (\x rec -> pponAtomico (snd x) && rec) True
 
 intercalar :: Doc -> [Doc] -> Doc
 intercalar = error "PENDIENTE: Ejercicio 7"

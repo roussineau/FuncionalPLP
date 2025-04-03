@@ -38,32 +38,51 @@ foldDoc  vacio fTexto fLinea doc = case doc of
           Linea y documento -> fLinea y (rec documento)
           where rec = foldDoc vacio fTexto fLinea 
 
+
+
 -- NOTA: Se declara `infixr 6 <+>` para que `d1 <+> d2 <+> d3` sea equivalente a `d1 <+> (d2 <+> d3)`
 -- También permite que expresiones como `texto "a" <+> linea <+> texto "c"` sean válidas sin la necesidad de usar paréntesis.
---infixr 6 <+>
+infixr 6 <+>
 
---(<+>) :: Doc -> Doc -> Doc
---(<+>) = foldDoc id (\ x rec -> \doc -> Texto x (rec doc)) (\ n rec -> \doc -> Linea n (rec doc) ) 
-concat2 :: Doc -> Doc -> Doc
-concat2 Vacio = id
-concat2 (Texto s d) = \d2 -> case d2 of 
-                              Vacio -> Texto s d 
-                              Texto s2 doc -> Texto (s ++ s2) (concat2 d doc)
-                              Linea n2 doc -> Texto s (concat2 d (Linea n2 doc))                            
-concat2 (Linea n d) = \d2 -> Linea n concat2 d d2
+(<+>) :: Doc -> Doc -> Doc
+(<+>) = foldDoc id (\ x rec -> \doc -> if esProximoTexto (rec doc) then añadirTextoAlPrimero doc x else Texto x (rec doc)) (\ n rec -> \doc -> Linea n (rec doc) ) 
 
+esVacio:: Doc -> Bool
+esVacio Vacio = True
+esVacio _ = False
 
+esProximoTexto:: Doc -> Bool
+esProximoTexto (Texto _ _) = True
+esProximoTexto _ = False
+
+añadirTextoAlPrimero :: Doc ->String ->  Doc 
+añadirTextoAlPrimero doc s1 = case doc of 
+                            Vacio -> Vacio
+                            Linea n d -> Linea n d
+                            Texto s2 d -> Texto (s1++s2) d
+
+-- consultar ejercicio
 indentar :: Int -> Doc -> Doc
-indentar i = error "PENDIENTE: Ejercicio 3"
+indentar _ Vacio = Vacio
+indentar n (Texto s d) = Texto s (indentarPrima d n)
+indentar n1 doc = indentarPrima doc n1
+
+indentarPrima :: Doc -> Int -> Doc
+--indentarPrima Vacio _ = Vacio
+--indentarPrima (Texto s d) n = Texto s (indentarPrima d n)
+--indentarPrima (Linea n1 d) n2 = Linea (n1+n2) (indentarPrima d n2)
+indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 
 mostrar :: Doc -> String
-mostrar = error "PENDIENTE: Ejercicio 4"
+--mostrar Vacio = ""
+--mostrar (Texto s d) = s ++ mostrar d
+--mostrar (Linea n d) = "\n" ++ nEspacios n ++ mostrar d
+mostrar = foldDoc ([]) (\s rec -> s ++ rec) (\n rec ->"\n" ++ nEspacios n ++ rec)
 
--- | Función dada que imprime un documento en pantalla
-
--- ghci> imprimir (Texto "abc" (Linea 2 (Texto "def" Vacio)))
--- abc
---   def
+nEspacios:: Int -> String
+nEspacios n = [const ' ' x | x <- [1..n] ]
+convetirLineaAString :: Doc -> String
+convetirLineaAString (Linea n _) = [] 
 
 imprimir :: Doc -> IO ()
 imprimir d = putStrLn (mostrar d)
