@@ -61,7 +61,9 @@ añadirTextoAlPrimero doc s1 = case doc of
                             Linea n d -> Linea n d
                             Texto s2 d -> Texto (s1++s2) d
 
--- consultar ejercicio
+-- consultar sobre consigna
+-- y sobre test: indentar 2 (texto "a" <+> linea <+> texto "b") ~?= texto "a" <+> indentar 2 (linea <+> texto "b")
+-- 'indentar 2 (texto "a" <+> d) = texto "a" + (indentar 2 d) para cualquier d porque "a" no tiene un salto de linea antes'
 indentar :: Int -> Doc -> Doc
 indentar _ Vacio = Vacio
 indentar n (Texto s d) = Texto s (indentarPrima d n)
