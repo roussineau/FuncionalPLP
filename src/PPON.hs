@@ -103,4 +103,15 @@ empiezaConLinea = foldDoc (False) (\s rec -> False) (\n rec -> True)
 -}
 
 pponADoc :: PPON -> Doc
-pponADoc = error "PENDIENTE: Ejercicio 9"
+pponADoc ppon = case ppon of 
+                TextoPP s -> texto (show s)
+                IntPP n -> texto (show n)
+                ObjetoPP xs -> if sonTodosAtomicos xs then llavesSimples (casoObjeto xs) else entreLlaves (casoObjeto xs)
+
+casoObjeto :: [(String,PPON)] -> [Doc]
+casoObjeto [] = []
+casoObjeto ((a,b):xs) = ( texto (show a) <+> texto ": " <+> pponADoc b): casoObjeto xs
+
+llavesSimples :: [Doc] -> Doc
+llavesSimples [] = texto "{}"      
+llavesSimples xs = texto "{ " <+> intercalar (texto ", ") xs <+> texto " }"  

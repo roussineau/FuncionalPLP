@@ -49,7 +49,7 @@ pericles = ObjetoPP [("nombre", TextoPP "Pericles"), ("edad", IntPP 30)]
 merlina = ObjetoPP [("nombre", TextoPP "Merlina"), ("edad", IntPP 24)]
 addams = ObjetoPP [("0", pericles), ("1", merlina)]
 familias = ObjetoPP [("Addams", addams)]
-
+ 
 testsEj6 :: Test
 testsEj6 =
   test
