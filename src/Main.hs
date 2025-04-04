@@ -3,6 +3,7 @@ module Main (main) where
 import Documento
 import PPON
 import Test.HUnit
+import qualified Data.Type.Bool as parametro
 
 main :: IO ()
 main = runTestTTAndExit allTests
@@ -25,6 +26,18 @@ testsEj2 =
     [ vacio <+> vacio ~?= vacio,
       texto "a" <+> texto "b" ~?= texto "ab",
       (texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b")
+      -- test propios
+      -- por como funciona el (<+>) solo importa el ultimo elemento antes de Vacio con respecto al primer parametro y el primer elemento del segundo parametro.
+      -- lo que venga antes  y despues de esto no imorta ya que no se tocan.
+      -- entonces, hay 6 casos por ver
+      -- Texto <+> Vacio
+      texto "a" <+> vacio ~?= texto "a",
+      -- Vacio <+> Texto
+      vacio <+> texto "a" ~?= texto "a",
+      -- Texto <+> Linea 
+      --Linea  <+> Texto
+      --Linea  <+> Linea
+      --Texto  <+> Texto
     ]
 
 testsEj3 :: Test
