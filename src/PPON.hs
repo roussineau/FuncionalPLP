@@ -43,12 +43,6 @@ entreLlaves ds =
     <+> linea
     <+> texto "}"
 
-aplanar :: Doc -> Doc
-aplanar = error "PENDIENTE: Ejercicio 8"
-
-{-
---el siguiente aplanar esta mal,
---consultar sobre Linea 0 (Texto " " Vacio) = Linea 1 Vacio
 
 aplanar :: Doc -> Doc
 aplanar d = lineasAEspacios (juntarLineas d)
@@ -62,7 +56,7 @@ juntarLineas = foldDoc (vacio) (\s rec -> texto s <+> rec) (\n rec -> if empieza
 empiezaConLinea :: Doc -> Bool
 empiezaConLinea = foldDoc (False) (\s rec -> False) (\n rec -> True)
 
-DESDE ACA ES COMENTERAIO
+{-
 Explicacion:
 Si definieramos aplanar en el Modulo de Doc (con recursion explicita) podria ser asi:
 
@@ -106,7 +100,6 @@ lineasAEspacios = foldDoc (vacio) (\s rec -> texto s <+> rec) (\n rec -> texto "
 juntarLineas = foldDoc (vacio) (\s rec -> texto s <+> rec) (\n rec -> if empiezaConLinea rec then rec else linea <+> rec)
 
 empiezaConLinea = foldDoc (False) (\s rec -> False) (\n rec -> True)
-
 -}
 
 pponADoc :: PPON -> Doc
