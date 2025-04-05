@@ -33,7 +33,12 @@ testsEj3 =
     [ indentar 2 vacio ~?= vacio,
       indentar 2 (texto "a") ~?= texto "a",
       indentar 2 (texto "a" <+> linea <+> texto "b") ~?= texto "a" <+> indentar 2 (linea <+> texto "b"),
-      indentar 2 (linea <+> texto "a") ~?= indentar 1 (indentar 1 (linea <+> texto "a"))
+      indentar 2 (linea <+> texto "a") ~?= indentar 1 (indentar 1 (linea <+> texto "a")),
+      --tests propios siguen
+      indentar 0 (texto "a" <+> linea <+> texto "b") ~?= texto "a" <+> linea <+> texto "b",
+      indentar 3 (linea <+> linea <+> texto "b") ~?= indentar 1 (indentar 2 (linea <+> linea <+> texto "b")),
+      indentar 3 (linea <+> linea <+> texto "b") ~?= indentar 2 (indentar 1 (linea <+> linea <+> texto "b")),
+      indentar 1 (indentar 1 (indentar 1 (texto "a" <+> linea <+> linea <+> texto "b"))) ~?= indentar 3 (texto "a" <+> linea <+> linea <+> texto "b")
     ]
 
 testsEj4 :: Test
@@ -49,7 +54,17 @@ pericles = ObjetoPP [("nombre", TextoPP "Pericles"), ("edad", IntPP 30)]
 merlina = ObjetoPP [("nombre", TextoPP "Merlina"), ("edad", IntPP 24)]
 addams = ObjetoPP [("0", pericles), ("1", merlina)]
 familias = ObjetoPP [("Addams", addams)]
- 
+--ppons de test propios
+nivel1, nivel2, nivel3, nivel4 :: PPON
+nivel1 = ObjetoPP [("info", TextoPP "Nivel 1"), ("siguiente", nivel2)]
+nivel2 = ObjetoPP [("info", TextoPP "Nivel 2"), ("siguiente", nivel3)]
+nivel3 = ObjetoPP [("info", TextoPP "Nivel 3"), ("siguiente", nivel4)]
+nivel4 = ObjetoPP [("info", TextoPP "Nivel 4")]
+
+pponAnidado :: Int -> PPON
+pponAnidado 0 = TextoPP "Nivel 0 Fin"
+pponAnidado n = ObjetoPP [("Nivel " ++ show n, pponAnidado (n-1))]
+
 testsEj6 :: Test
 testsEj6 =
   test
@@ -57,10 +72,11 @@ testsEj6 =
       pponObjetoSimple addams ~?= False
     ]
 
-a, b, c :: Doc
+a, b, c, l:: Doc
 a = texto "a"
 b = texto "b"
 c = texto "c"
+l = linea
 
 testsEj7 :: Test
 testsEj7 =
@@ -68,7 +84,13 @@ testsEj7 =
     [ mostrar (intercalar (texto ", ") []) ~?= "",
       mostrar (intercalar (texto ", ") [a, b, c]) ~?= "a, b, c",
       mostrar (entreLlaves []) ~?= "{ }",
-      mostrar (entreLlaves [a, b, c]) ~?= "{\n  a,\n  b,\n  c\n}"
+      mostrar (entreLlaves [a, b, c]) ~?= "{\n  a,\n  b,\n  c\n}",
+      --tests propios siguen
+      intercalar (vacio) [a, b, c] ~?= texto "abc",
+      intercalar a [b, l, c] ~?= texto "ba" <+> l <+> a <+> c,
+      intercalar l [a,b,c] ~?= a <+> l <+> b <+> l <+> c,
+      intercalar l [a, b, l, c] ~?= a <+> l <+> intercalar l [b, l, c],
+      intercalar (c <+> l) [a,vacio,b,vacio] ~?= a <+> c <+> l <+> vacio <+> c <+> l <+> b <+> c <+> l <+> vacio
     ]
 
 testsEj8 :: Test
@@ -82,5 +104,22 @@ testsEj9 =
   test
     [ mostrar (pponADoc pericles) ~?= "{ \"nombre\": \"Pericles\", \"edad\": 30 }",
       mostrar (pponADoc addams) ~?= "{\n  \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n  \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n}",
-      mostrar (pponADoc familias) ~?= "{\n  \"Addams\": {\n    \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n    \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n  }\n}"
+      mostrar (pponADoc familias) ~?= "{\n  \"Addams\": {\n    \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n    \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n  }\n}",
+      --tests propios siguen:
+      mostrar (pponADoc nivel3) ~?= "{\n  \"info\": \"Nivel 3\",\n  \"siguiente\": { \"info\": \"Nivel 4\" }\n}",
+      mostrar (pponADoc nivel1) ~?= "{\n  \"info\": \"Nivel 1\",\n  \"siguiente\": {\n    \"info\": \"Nivel 2\",\n    \"siguiente\": {\n      \"info\": \"Nivel 3\",\n      \"siguiente\": { \"info\": \"Nivel 4\" }\n    }\n  }\n}"
     ]
+--nivel1, nivel2, nivel3, nivel4 :: PPON
+--nivel1 = ObjetoPP [("info", TextoPP "Nivel 1"), ("siguiente", nivel2)]
+--nivel2 = ObjetoPP [("info", TextoPP "Nivel 2"), ("siguiente", nivel3)]
+--nivel3 = ObjetoPP [("info", TextoPP "Nivel 3"), ("siguiente", nivel4)]
+--nivel4 = ObjetoPP [("info", TextoPP "Nivel 4")]
+
+--pponAnidado :: Int -> PPON
+--pponAnidado 0 = TextoPP "Nivel 0 Fin"
+--pponAnidado n = ObjetoPP [("Nivel " ++ show n, pponAnidado (n-1))]
+
+--testsllavesSimples = 
+  --test 
+    --[ 
+    --]
