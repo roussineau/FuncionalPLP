@@ -3,7 +3,7 @@ module Main (main) where
 import Documento
 import PPON
 import Test.HUnit
-import qualified Data.Type.Bool as parametro
+--import qualified Data.Type.Bool as parametro
 
 main :: IO ()
 main = runTestTTAndExit allTests
@@ -25,7 +25,7 @@ testsEj2 =
   test
     [ vacio <+> vacio ~?= vacio,
       texto "a" <+> texto "b" ~?= texto "ab",
-      (texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b")
+      (texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b"),
       -- test propios
       -- por como funciona el (<+>) solo importa el ultimo elemento antes de Vacio con respecto al primer parametro y el primer elemento del segundo parametro.
       -- lo que venga antes  y despues de esto no imorta ya que no se tocan.
@@ -33,7 +33,7 @@ testsEj2 =
       -- Texto <+> Vacio
       texto "a" <+> vacio ~?= texto "a",
       -- Vacio <+> Texto
-      vacio <+> texto "a" ~?= texto "a",
+      vacio <+> texto "a" ~?= texto "a"
       -- Texto <+> Linea 
       --Linea  <+> Texto
       --Linea  <+> Linea
