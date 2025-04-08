@@ -129,28 +129,8 @@ pponADoc :: PPON -> Doc
 pponADoc ppon = case ppon of 
                 TextoPP s -> texto (show s)
                 IntPP n -> texto (show n)
-                ObjetoPP xs -> if sonTodosAtomicos xs then aplanar( entreLlaves (casoObjeto xs)) else entreLlaves (casoObjeto xs)
-                where casoObjeto  = map (\x ->texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
+                ObjetoPP xs -> if sonTodosAtomicos xs then aplanar(casoObjeto xs) else casoObjeto xs
+                where casoObjeto  =entreLlaves.map (\x ->texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
 
 
 
-{- 
-casoObjeto :: [(String,PPON)] -> [Doc]
-casoObjeto = map (\x ->texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
-
-pponADoc2 :: PPON -> Doc
-pponADoc2 ppon = case ppon of 
-                TextoPP s -> texto (show s)
-                IntPP n -> texto (show n)
-                ObjetoPP xs -> if sonTodosAtomicos xs then llavesSimples (casoObjeto xs) else entreLlaves (casoObjeto xs)
-
-
-casoObjeto2 :: [(String,PPON)] -> [Doc]
-casoObjeto2 [] = []
-casoObjeto2 ((a,b):xs) = ( texto (show a) <+> texto ": " <+> pponADoc b): casoObjeto xs
-
-
-llavesSimples :: [Doc] -> Doc
-llavesSimples [] = texto "{}"      
-llavesSimples xs = texto "{ " <+> intercalar (texto ", ") xs <+> texto " }"  
--}

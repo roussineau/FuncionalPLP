@@ -1,0 +1,84 @@
+Ejercicio 10
+Se pide demostar utilizando razonamiento ecuacional e inducci´on estructural que para todo
+n, m :: Int positivos y x :: Doc,
+indentar n (indentar m x) = indentar (n+m) x
+
+La demostraci´on debe ser entregada en un archivo indentar.txt junto con el resto del c´odigo.
+Se sugiere demostrar y usar los siguientes lemas:
+
+{L1}indentar k Vacio = Vacio para todo k :: Int positivo.
+
+{L2}indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,
+
+s :: String y d :: Doc.
+{L3}indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+
+
+Vamos a hacer induccion en x.
+Tenemos que ver que vale ∀ r :: Doc. P(r) ≡ indentar n (indentar m x) = indentar (n+m) x
+hay que probar:
+*caso base: P(Vacio)
+*∀ d1 :: Doc, *∀ l :: String (P(d1)--> P(Linea l d1))
+*∀ d2 :: Doc, *∀ s :: String (P(d1)--> P(Texto s d2))
+
+--caso base 
+P(Vacio) ≡ indentar n (indentar m Vacio) = indentar (n+m) Vacio
+
+
+*indentar (n+m) Vacio ->{L0}
+= Vacio
+
+*indentar n (indentar m Vacio) ->{L0}
+=indentar n (Vacio) ->{L0} 
+=Vacio
+
+se probo el caso base,
+ahora vemos
+*∀ d1 :: Doc, *∀ l :: String (P(d1)--> P(Linea l d1))
+hipotesis inductiva: P(d1)≡ indentar n (indentar m d1) = indentar (n+m) d1
+ahora quiero ver que se cumple
+P(Linea l d1) ≡ indentar n (indentar m (Linea l d1)) = indentar (n+m) (Linea l d1)
+
+*indentar n (indentar m (Linea l d1))->{L2}
+=indentar n (Linea (m+l) (indentar m d1)) -> {L2}
+=Linea (n+m+l) (indentar n (indentar m d1)) -> {HI}
+=Linea (n+m+l) (indentar (n+m) d1)
+
+
+*indentar (n+m) (Linea l d1) -> {L2}
+=Linea (n+m+l) (indentar (n+m) d)
+
+ahora vemos
+*∀ d2 :: Doc, *∀ s :: String (P(d1)--> P(Texto s d2))
+hipotesis inductiva: P(d1)≡ indentar n (indentar m d2) = indentar (n+m) d2
+ahora quiero ver que se cumple
+P(Texto s d2) ≡ indentar n (indentar m (Texto s d2)) = indentar (n+m) (Texto s d2)
+
+*indentar n (indentar m (Texto s d2)) -> {L1}
+=indentar n (Texto s (indentar m d2)) -> {L1}
+=Texto s (indentar n (indentar m d2)) -> {HI}
+=Texto s (indentar (n+m) d2)
+
+
+*indentar (n+m) (Texto s d2) -> {L1}
+=Texto s (indentar (n+m) d2)
+
+								{L0}indentar k Vacio = Vacio para todo k :: Int positivo.
+
+								{L1}indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,
+
+
+								{L2}indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+
+
+								indentar :: Int -> Doc -> Doc
+								{I}indentar n doc = indentarPrima doc n
+
+
+								indentarPrima :: Doc -> Int -> Doc
+								{I'}indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
+
+
+
+
+
