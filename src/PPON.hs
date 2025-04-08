@@ -134,7 +134,7 @@ pponADoc ppon = case ppon of
 
 
 
-{-
+{- 
 casoObjeto :: [(String,PPON)] -> [Doc]
 casoObjeto = map (\x ->texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
 

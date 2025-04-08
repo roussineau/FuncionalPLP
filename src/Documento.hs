@@ -92,14 +92,15 @@ En el caso de devolver falso, como el Doc 2 ya se concateno, devuelve la concate
 
 -- Ejercicio 3
 
+{-
 indentar :: Int -> Doc -> Doc
 indentar _ Vacio = Vacio
 indentar n (Texto s d) = Texto s (indentarPrima d n)
-indentar n1 doc = indentarPrima doc n1
+indentar n (Linea x d) = indentarPrima (Linea x d) n
+-}
+indentar :: Int -> Doc -> Doc
+indentar n doc = indentarPrima doc n
 
--- el unico proposito de indentar es el de llamar a indentar prima
--- el unico detalle es que si el Doc empieza con Texto no se tiene que identar al principio 
--- por eso se llama adentro en el caso de Texto
 
 indentarPrima :: Doc -> Int -> Doc
 indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
