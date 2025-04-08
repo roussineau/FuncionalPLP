@@ -61,12 +61,13 @@ testsEj4 =
       mostrar linea ~?= "\n",
       mostrar (indentar 2 (texto "a" <+> linea <+> texto "b")) ~?= "a\n  b"
     ]
-
+-- :{
 pericles, merlina, addams, familias :: PPON
 pericles = ObjetoPP [("nombre", TextoPP "Pericles"), ("edad", IntPP 30)]
 merlina = ObjetoPP [("nombre", TextoPP "Merlina"), ("edad", IntPP 24)]
 addams = ObjetoPP [("0", pericles), ("1", merlina)]
 familias = ObjetoPP [("Addams", addams)]
+-- :}
 --ppons de test propios
 nivel1, nivel2, nivel3, nivel4 :: PPON
 nivel1 = ObjetoPP [("info", TextoPP "Nivel 1"), ("siguiente", nivel2)]

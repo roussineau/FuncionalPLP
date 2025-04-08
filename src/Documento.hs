@@ -98,7 +98,7 @@ indentar n (Texto s d) = Texto s (indentarPrima d n)
 indentar n1 doc = indentarPrima doc n1
 
 -- el unico proposito de indentar es el de llamar a indentar prima
--- el unico detalle es que si el Doc empieza con Textp no se tiene que identar al principio 
+-- el unico detalle es que si el Doc empieza con Texto no se tiene que identar al principio 
 -- por eso se llama adentro en el caso de Texto
 
 indentarPrima :: Doc -> Int -> Doc
