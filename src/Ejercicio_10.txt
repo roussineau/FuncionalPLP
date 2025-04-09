@@ -6,12 +6,11 @@ indentar n (indentar m x) = indentar (n+m) x
 La demostraci´on debe ser entregada en un archivo indentar.txt junto con el resto del c´odigo.
 Se sugiere demostrar y usar los siguientes lemas:
 
-{L1}indentar k Vacio = Vacio para todo k :: Int positivo.
+{L0}indentar k Vacio = Vacio para todo k :: Int positivo.
 
-{L2}indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,
+{L1}indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,s :: String y d :: Doc.
 
-s :: String y d :: Doc.
-{L3}indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+{L2}indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
 
 
 Vamos a hacer induccion en x.
@@ -63,21 +62,63 @@ P(Texto s d2) ≡ indentar n (indentar m (Texto s d2)) = indentar (n+m) (Texto s
 *indentar (n+m) (Texto s d2) -> {L1}
 =Texto s (indentar (n+m) d2)
 
-								{L0}indentar k Vacio = Vacio para todo k :: Int positivo.
+ya esta
+solo falta demostrar los lemas
+Recordamos las definiciones:
+      foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
+      foldDoc  vacio fTexto fLinea doc = case doc of
+{FD0}     Vacio -> vacio
+{FD1}     Texto x documento -> fTexto x (rec documento)
+{FD2}     Linea y documento -> fLinea y (rec documento)
+          where rec = foldDoc vacio fTexto fLinea 
+    
+      indentar :: Int -> Doc -> Doc
+{ID}  indentar n doc = indentarPrima doc n
 
-								{L1}indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,
+      indentarPrima :: Doc -> Int -> Doc
+{IP}  indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 
 
-								{L2}indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+- Mostramos Lema 0:
+{L0} indentar k Vacio = Vacio para todo k :: Int positivo.
+
+    indentar k Vacio
+=   indentarPrima Vacio k {ID}
+=   foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) Vacio k {IP}
+=   const Vacio k {FD0}
+=   Vacio {def de const}
+
+- Mostramos Lema 1: indentar k (Texto s d) = Texto s (indentar k d)
+{L1} indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+
+    indentar k (Texto s d)
+=   indentarPrima (Texto s d) k {ID}
+=   foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) (Texto s d) k {IP}
+=   (\s' rec -> \n -> Texto s' (rec n)) s (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) k {FD1}
+=   (\s' rec -> \n -> Texto s' (rec n)) s (indentarPrima d) k {IP}
+=   (\s' -> \rec -> \n -> Texto s' (rec n)) s (indentarPrima d) k {Sintaxis Haskell}
+=   (\rec -> \n -> Texto s (rec n)) (indentarPrima d) k {Propiedad Beta}
+=   (\n -> Texto s (indentarPrima d n)) k {Propiedad Beta}
+=   Texto s (indentarPrima d k) {Propiedad Beta}
+=   Texto s (indentar k d) {ID}
+
+Mostramos Lema 2: indentar m (Linea k d) = Linea (m+k) (indentar m d)
+{L2} indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+
+    indentar m (Linea k d)
+=   indentarPrima (Linea k d) m {ID}
+=   foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) (Linea k d) m {IP}
+=   (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) k (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) m {FD2}
+=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) m {Sintaxis Haskell}
+=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {IP}
+=   (\rec -> \n2 -> Linea (k + n2) (rec n2)) (indentarPrima d) m {Propiedad Beta}
+=   (\n2 -> Linea (k + n2) (indentarPrima d n2)) m {Propiedad Beta}
+=   Linea (k + m) (indentarPrima d m) {Propiedad Beta}
+=   Linea (k + m) (indentar m d) {ID}
+=   Linea (m+k) (indentar m d) {Conmutatividad de la suma}
 
 
-								indentar :: Int -> Doc -> Doc
-								{I}indentar n doc = indentarPrima doc n
-
-
-								indentarPrima :: Doc -> Int -> Doc
-								{I'}indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
-
+								
 
 
 
