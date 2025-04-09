@@ -41,8 +41,8 @@ foldDoc  vacio fTexto fLinea doc = case doc of
           where rec = foldDoc vacio fTexto fLinea 
 
 {-
-es un fold de un tipo algebraico siguiendo la estructura tal cual como vimos en las clases practicas
-recive 1 funcion para el constructor de Texto, 1 funcion para el constructor de Linea y 1 para el caso Vacio
+Es un fold de un tipo algebraico siguiendo la estructura tal cual como vimos en las clases practicas
+recive una funcion para el constructor de Texto, una funcion para el constructor de Linea y 1 para el caso Vacio
 -}
 
 
@@ -52,7 +52,7 @@ esTexto:: Doc -> Bool
 esTexto (Texto _ _) = True
 esTexto _ = False
 
--- predicado que si es un texto da True
+-- Predicado que si es un texto da True
 
 
 añadirTextoAlPrimero :: Doc ->String ->  Doc 
@@ -62,7 +62,7 @@ añadirTextoAlPrimero doc s1 = case doc of
                             Texto s2 d -> Texto (s1++s2) d
 
 {-
-recive un doc y un string, si el primer elemento del doc es linea o vacio no hace nada, en cambio si es texto
+Recive un doc y un string, si el primer elemento del doc es linea o vacio no hace nada, en cambio si es texto
 concatena el string a el string del texto
 -} 
 
@@ -76,7 +76,7 @@ infixr 6 <+>
 
 {-
 Doc -> (Doc -> Doc)
-Una funcion que agarra un Doc, devuelve una funcion que agarra otro Doc el cual devuelve un Doc. 
+Una funcion que toma un Doc, devuelve una funcion que toma otro Doc la cual devuelve un Doc. 
 A esta funcion le pasamos un Doc y nos devuelve el resultado.
 
 El Vacio del primer Doc debe ser remplazado por el segundo Doc.
@@ -92,29 +92,30 @@ En el caso de devolver falso, como el Doc 2 ya se concateno, devuelve la concate
 
 -- Ejercicio 3
 
-{-
-indentar :: Int -> Doc -> Doc
-indentar _ Vacio = Vacio
-indentar n (Texto s d) = Texto s (indentarPrima d n)
-indentar n (Linea x d) = indentarPrima (Linea x d) n
--}
 indentar :: Int -> Doc -> Doc
 indentar n doc = indentarPrima doc n
-
 
 indentarPrima :: Doc -> Int -> Doc
 indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 
 {-
-en el caso de ester en Vacio tenes que dejarlo asi
-en el caso de Texto tenes que dejarlo asi y pasar el n a la recurcion 
-y en el caso de linea tenes que sumartelo y pasar el n a la recurcion
+Indentar le pasa el parametro de tipo documento a la funcion indentarPrima para que pueda ser
+procesado con recursion estructural usando foldDoc
 
+En el caso del documento Vacio queda igual
+En el caso de tener Texto llamamos recursivamente la funcion sobre su 'argumento' documento
+(indentamos el documento que le sigue)
+y en el caso de encontrar una Linea le sumamos n espacios y recursivamente indentamos el documento que sigue
 
-asi se veria si se desarma el fold
-indentarPrima Vacio _ = Vacio
-indentarPrima (Texto s d) n = Texto s (indentarPrima d n)
-indentarPrima (Linea n1 d) n2 = Linea (n1+n2) (indentarPrima d n2)
+Como el n >= 0 (precondicion de la funcion) al sumarlo con los espacios de
+los documentos del tipo 'Linea m d' se mantiene que n+m >= 0
+A su vez, la funcion no modifica los string de los documentos construidos por 'Texto s d' si se
+cumple que s no contiene '\n' y s != "" al entrar a la funcion, se cumplira lo mismo al salir
+Por ultimo, asumamos que doc = Texto s1 d1 cumple el invariante si el resultado de (indentar n doc)
+fuera de la forma 'Texto s1 (Texto s2 d2)'
+necesariamente Texto s2 d2 es el resultado de (rec n) donde rec es el llamado recursivo evaluado en d1
+Pero si rec n = Texto s2 d2 entonces es porque foldDoc () () () d1 entro
+por la rama del constructor Texto, osea que d1 era de la forma Texto s' d' y el invariante ya estaba roto (Contradiccion)
 -}
 
 
@@ -123,20 +124,15 @@ indentarPrima (Linea n1 d) n2 = Linea (n1+n2) (indentarPrima d n2)
 nEspacios:: Int -> String
 nEspacios n = [const ' ' x | x <- [1..n] ]
 
--- una funcion que agarra un Int y devuelve una lista de chars que tiene solo " " y de largo n 
+-- Una funcion que toma un Int y devuelve una lista de chars que tiene solo " " y de largo n 
 
 mostrar :: Doc -> String
 mostrar = foldDoc [] (\s rec -> s ++ rec) (\n rec ->"\n" ++ nEspacios n ++ rec)
 
 {-
-en el caso de Vacio hay que devolver una lista vacia ya que vamos a concatenar todo a partir de eso
+En el caso de Vacio hay que devolver una lista vacia ya que vamos a concatenar todo a partir de eso
 en el caso de Texto simplemente se concatena al llamado recursivo 
 en el caso de Linea tenes que concatenar el caracter de nueva linea ademas de que llamamos a nEspacion para concatenar la cantidad de espacio necesario
-
-asi se veria desarmando el fold 
-mostrar Vacio = ""
-mostrar (Texto s d) = s ++ mostrar d
-mostrar (Linea n d) = "\n" ++ nEspacios n ++ mostrar d
 -}
 
 imprimir :: Doc -> IO ()

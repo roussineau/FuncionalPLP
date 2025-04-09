@@ -1,70 +1,74 @@
 Ejercicio 10
-Se pide demostar utilizando razonamiento ecuacional e inducci´on estructural que para todo
+Se pide demostar utilizando razonamiento ecuacional e induccion estructural que para todo
 n, m :: Int positivos y x :: Doc,
 indentar n (indentar m x) = indentar (n+m) x
 
-La demostraci´on debe ser entregada en un archivo indentar.txt junto con el resto del c´odigo.
+La demostracion debe ser entregada en un archivo indentar.txt junto con el resto del codigo.
 Se sugiere demostrar y usar los siguientes lemas:
 
-{L0}indentar k Vacio = Vacio para todo k :: Int positivo.
+{L0} indentar k Vacio = Vacio para todo k :: Int positivo.
 
-{L1}indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,s :: String y d :: Doc.
+{L1} indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,s :: String y d :: Doc.
 
-{L2}indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+{L2} indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
 
 
-Vamos a hacer induccion en x.
-Tenemos que ver que vale ∀ r :: Doc. P(r) ≡ indentar n (indentar m x) = indentar (n+m) x
-hay que probar:
-*caso base: P(Vacio)
-*∀ d1 :: Doc, *∀ l :: String (P(d1)--> P(Linea l d1))
-*∀ d2 :: Doc, *∀ s :: String (P(d1)--> P(Texto s d2))
+Hacemos induccion estructural en x :: Doc.
+Para mostrar que ∀ r :: Doc. P(r) ≡ ∀ n,m :: Int . indentar n (indentar m x) = indentar (n+m) x
+Basta con probar:
+*Caso base: P(Vacio)
+*Paso inductivo sobre constructor Texto:
+∀ d :: Doc . ∀ s :: String . (P(d) ==> P(Texto s d))
+*Paso inductivo sobre constructor Linea:
+∀ d :: Doc . ∀ l :: String . (P(d) ==> P(Linea l d))
 
---caso base 
+--Caso base:
 P(Vacio) ≡ indentar n (indentar m Vacio) = indentar (n+m) Vacio
 
+    indentar (n+m) Vacio 
+=   Vacio {L0}
 
-*indentar (n+m) Vacio ->{L0}
-= Vacio
-
-*indentar n (indentar m Vacio) ->{L0}
-=indentar n (Vacio) ->{L0} 
-=Vacio
-
-se probo el caso base,
-ahora vemos
-*∀ d1 :: Doc, *∀ l :: String (P(d1)--> P(Linea l d1))
-hipotesis inductiva: P(d1)≡ indentar n (indentar m d1) = indentar (n+m) d1
-ahora quiero ver que se cumple
-P(Linea l d1) ≡ indentar n (indentar m (Linea l d1)) = indentar (n+m) (Linea l d1)
-
-*indentar n (indentar m (Linea l d1))->{L2}
-=indentar n (Linea (m+l) (indentar m d1)) -> {L2}
-=Linea (n+m+l) (indentar n (indentar m d1)) -> {HI}
-=Linea (n+m+l) (indentar (n+m) d1)
+    indentar n (indentar m Vacio) 
+=   indentar n (Vacio) {L0} 
+=   Vacio {L0}
 
 
-*indentar (n+m) (Linea l d1) -> {L2}
-=Linea (n+m+l) (indentar (n+m) d)
+--Paso inductivo sobre constructor Linea:
+∀ d :: Doc . ∀ l :: String . (P(d) ==> P(Linea l d))
 
-ahora vemos
-*∀ d2 :: Doc, *∀ s :: String (P(d1)--> P(Texto s d2))
-hipotesis inductiva: P(d1)≡ indentar n (indentar m d2) = indentar (n+m) d2
-ahora quiero ver que se cumple
-P(Texto s d2) ≡ indentar n (indentar m (Texto s d2)) = indentar (n+m) (Texto s d2)
+Hipotesis inductiva: P(d) ≡ indentar n (indentar m d) = indentar (n+m) d
+QVQ:
+Tesis inductiva: P(Linea l d) ≡ indentar n (indentar m (Linea l d)) = indentar (n+m) (Linea l d)
 
-*indentar n (indentar m (Texto s d2)) -> {L1}
-=indentar n (Texto s (indentar m d2)) -> {L1}
-=Texto s (indentar n (indentar m d2)) -> {HI}
-=Texto s (indentar (n+m) d2)
+    indentar n (indentar m (Linea l d))
+=   indentar n (Linea (m+l) (indentar m d)) {L2}
+=   Linea (n+m+l) (indentar n (indentar m d)) {L2}
+=   Linea (n+m+l) (indentar (n+m) d) {HI}
+
+    indentar (n+m) (Linea l d)
+=   Linea (n+m+l) (indentar (n+m) d) {L2}
 
 
-*indentar (n+m) (Texto s d2) -> {L1}
-=Texto s (indentar (n+m) d2)
+--Paso inductivo sobre constructor Texto:
+∀ d :: Doc . ∀ s :: String . (P(d) ==> P(Texto s d))
+Hipotesis inductiva: P(d) ≡ ∀ n,m :: Int . indentar n (indentar m d) = indentar (n+m) d
+QVQ:
+Tesis inductiva: P(Texto s d) ≡ ∀ n,m :: Int . indentar n (indentar m (Texto s d)) = indentar (n+m) (Texto s d)
 
-ya esta
-solo falta demostrar los lemas
+    indentar n (indentar m (Texto s d2))
+=   indentar n (Texto s (indentar m d2)) {L1}
+=   Texto s (indentar n (indentar m d2)) {L1}
+=   Texto s (indentar (n+m) d2) {HI}
+
+    indentar (n+m) (Texto s d2)
+=   Texto s (indentar (n+m) d2) {L1}
+
+Fin de demostracion ∎
+
+A continuacion mostramos los lemas {L1} {L2} y {L3}
+
 Recordamos las definiciones:
+
       foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
       foldDoc  vacio fTexto fLinea doc = case doc of
 {FD0}     Vacio -> vacio
@@ -109,17 +113,11 @@ Mostramos Lema 2: indentar m (Linea k d) = Linea (m+k) (indentar m d)
 =   indentarPrima (Linea k d) m {ID}
 =   foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) (Linea k d) m {IP}
 =   (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) k (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) m {FD2}
-=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) m {Sintaxis Haskell}
-=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {IP}
+=   (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {IP}
+=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {Sintaxis Haskell}
 =   (\rec -> \n2 -> Linea (k + n2) (rec n2)) (indentarPrima d) m {Propiedad Beta}
 =   (\n2 -> Linea (k + n2) (indentarPrima d n2)) m {Propiedad Beta}
 =   Linea (k + m) (indentarPrima d m) {Propiedad Beta}
 =   Linea (k + m) (indentar m d) {ID}
-=   Linea (m+k) (indentar m d) {Conmutatividad de la suma}
-
-
-								
-
-
-
+=   Linea (m + k) (indentar m d) {Conmutatividad de la suma}
 
