@@ -30,67 +30,61 @@ texto [] = Vacio
 texto t = Texto t Vacio
 
 
-
--- Ejercicio 1
+-- | Ejercicio 1 |
 
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
-foldDoc  vacio fTexto fLinea doc = case doc of
-          Vacio -> vacio
-          Texto x documento -> fTexto x (rec documento)
-          Linea y documento -> fLinea y (rec documento)
-          where rec = foldDoc vacio fTexto fLinea 
-
+foldDoc vacio fTexto fLinea doc =
+  case doc of
+    Vacio -> vacio
+    Texto x documento -> fTexto x (rec documento)
+    Linea y documento -> fLinea y (rec documento)
+  where rec = foldDoc vacio fTexto fLinea 
 {-
-Es un fold de un tipo algebraico siguiendo la estructura tal cual como vimos en las clases practicas
-recive una funcion para el constructor de Texto, una funcion para el constructor de Linea y 1 para el caso Vacio
+  Es un fold de un tipo algebraico siguiendo la estructura tal cual
+  vimos en las clases prácticas. Recibe una función para el constructor
+  Texto, una función para el constructor Linea, y otro para Vacio.
 -}
 
 
---Ejercicio 2
+-- | Ejercicio 2 |
 
-esTexto:: Doc -> Bool
+esTexto :: Doc -> Bool
 esTexto (Texto _ _) = True
 esTexto _ = False
+-- Predicado auxiliar que devuelve True si y sólo si el parámetro es un Texto.
 
--- Predicado que si es un texto da True
-
-
-añadirTextoAlPrimero :: Doc ->String ->  Doc 
-añadirTextoAlPrimero doc s1 = case doc of 
-                            Vacio -> Vacio
-                            Linea n d -> Linea n d
-                            Texto s2 d -> Texto (s1++s2) d
-
+añadirTextoAlPrimero :: Doc -> String ->  Doc 
+añadirTextoAlPrimero (Texto s1 d) s2 = Texto (s2++s1) d
+añadirTextoAlPrimero d _ = d
 {-
-Recive un doc y un string, si el primer elemento del doc es linea o vacio no hace nada, en cambio si es texto
-concatena el string a el string del texto
+  Función auxiliar que recibe un Doc y un String.
+  Si el primer parámetro es Texto, concatena el String pasado al String del Texto.
+  Sino, no hace nada sobre ese primer parámetro.
 -} 
 
 infixr 6 <+>
 
 (<+>) :: Doc -> Doc -> Doc
-(<+>) = foldDoc id (\ x rec -> \doc -> if esTexto (rec doc) 
-                                      then añadirTextoAlPrimero doc x 
-                                      else Texto x (rec doc))         
-                                    (\ n rec -> \doc -> Linea n (rec doc) ) 
-
+(<+>) = foldDoc id fTexto fLinea
+  where fTexto x rec doc = if esTexto (rec doc)
+                           then añadirTextoAlPrimero doc x
+                           else Texto x (rec doc)
+        fLinea n rec doc = Linea n (rec doc)
 {-
-Doc -> (Doc -> Doc)
-Una funcion que toma un Doc, devuelve una funcion que toma otro Doc la cual devuelve un Doc. 
-A esta funcion le pasamos un Doc y nos devuelve el resultado.
+  Toma un Doc y devuelve una función que toma otro Doc y devuelve un Doc, que sería el resultado esperado.
 
-El Vacio del primer Doc debe ser remplazado por el segundo Doc.
-Sin enbargo esto puede llegar a incumplir el invariante porque el primer Doc antes del Vacio podria terminar con un Texto
-y el segundo Doc podria empezar con un Texto. Por ende, 
-utilizamos un if en el fTexto. En el predicado del if preguntamos si el siguiente elemento es texto.
-Este se va a evaluar y devolver True en el caso de ..Texto "s1" (Texto "s2" ..). Como suponemos que el 
-primer Doc y el segundo cumplen el invariante, esto nada mas va a a pasar cuando ya se concateno el Doc 2 al final del Doc 1.
-Si el predicado devuelve True y al estar en el ultimo texto del Doc 1, devuelvo el Doc 2 con el string de ese texto añadido.
-En el caso de devolver falso, como el Doc 2 ya se concateno, devuelve la concatenacion realizada.
+  Intuitivamente, el Vacio del primer Doc podría ser remplazado por el segundo Doc. Sin embargo, esto incumpliría
+  el invariante si el Doc resultante tiene en alguna parte algo de la forma Texto String (Texto String _).
+  Por eso utilizamos un condicional en fTexto que:
+    Si el predicado devuelve True:
+      Como asumimos que ambos Doc cumplen el invariante, esto solo puede llegar a pasar cuando ya se concatenó el Doc 2
+      al final del Doc 1. Al estar en el último Texto del Doc 1, devuelvo el Doc 2 con el string de ese texto añadido.
+    Si el predicado devuelve False:
+      Como el Doc 2 ya se concatenó, devuelvo la concatenación realizada.
 -}
 
 
--- Ejercicio 3
+-- | Ejercicio 3 |
 
 indentar :: Int -> Doc -> Doc
 indentar n doc = indentarPrima doc n
