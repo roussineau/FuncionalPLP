@@ -10,6 +10,7 @@ module Documento
     imprimir,
   )
 where
+  
 import Data.Foldable (Foldable(fold))
 
 data Doc
@@ -53,9 +54,9 @@ esTexto (Texto _ _) = True
 esTexto _ = False
 -- Predicado auxiliar que devuelve True si y sólo si el parámetro es un Texto.
 
-añadirTextoAlPrimero :: Doc -> String ->  Doc 
-añadirTextoAlPrimero (Texto s1 d) s2 = Texto (s2++s1) d
-añadirTextoAlPrimero d _ = d
+añadirTextoAlPrincipio :: Doc -> String ->  Doc 
+añadirTextoAlPrincipio (Texto s1 d) s2 = Texto (s2++s1) d
+añadirTextoAlPrincipio d _ = d
 {-
   Función auxiliar que recibe un Doc y un String.
   Si el primer parámetro es Texto, concatena el String pasado al String del Texto.
@@ -67,7 +68,7 @@ infixr 6 <+>
 (<+>) :: Doc -> Doc -> Doc
 (<+>) = foldDoc id fTexto fLinea
   where fTexto x rec doc = if esTexto (rec doc)
-                           then añadirTextoAlPrimero doc x
+                           then añadirTextoAlPrincipio doc x
                            else Texto x (rec doc)
         fLinea n rec doc = Linea n (rec doc)
 {-
@@ -86,47 +87,54 @@ infixr 6 <+>
 
 -- | Ejercicio 3 |
 
-indentar :: Int -> Doc -> Doc
-indentar n doc = indentarPrima doc n
-
 indentarPrima :: Doc -> Int -> Doc
 indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
-
 {-
-Indentar le pasa el parametro de tipo documento a la funcion indentarPrima para que pueda ser
-procesado con recursion estructural usando foldDoc
+  Creamos la función auxiliar indentarPrima por sencillez a la hora de justificar en el punto 10,
+  pero tranquilamente podríamos haber hecho un flip a toda esta deficición en la definición de indentar.
+-}
 
-En el caso del documento Vacio queda igual
-En el caso de tener Texto llamamos recursivamente la funcion sobre su 'argumento' documento
-(indentamos el documento que le sigue)
-y en el caso de encontrar una Linea le sumamos n espacios y recursivamente indentamos el documento que sigue
+indentar :: Int -> Doc -> Doc
+indentar n doc = indentarPrima doc n
+{-
+  Indentar le pasa el parametro de tipo documento a la funcion indentarPrima
+  para que pueda ser procesado con recursion estructural usando foldDoc.
 
-Como el n >= 0 (precondicion de la funcion) al sumarlo con los espacios de
-los documentos del tipo 'Linea m d' se mantiene que n+m >= 0
-A su vez, la funcion no modifica los string de los documentos construidos por 'Texto s d' si se
-cumple que s no contiene '\n' y s != "" al entrar a la funcion, se cumplira lo mismo al salir
-Por ultimo, asumamos que doc = Texto s1 d1 cumple el invariante si el resultado de (indentar n doc)
-fuera de la forma 'Texto s1 (Texto s2 d2)'
-necesariamente Texto s2 d2 es el resultado de (rec n) donde rec es el llamado recursivo evaluado en d1
-Pero si rec n = Texto s2 d2 entonces es porque foldDoc () () () d1 entro
-por la rama del constructor Texto, osea que d1 era de la forma Texto s' d' y el invariante ya estaba roto (Contradiccion)
+  En el caso de Vacio, queda igual.
+  En el caso de Texto, llamamos recursivamente la funcion sobre su constructor recursivo de tipo
+    Doc, e indentamos el documento que le sigue.
+  En el caso de Linea, le sumamos n espacios y recursivamente indentamos el documento que sigue.
+
+  Como el n >= 0 (precondicion de la función) al sumarlo con los espacios
+    de los documentos del constructor "Linea m d" se mantiene que n+m >= 0.
+
+  A su vez, la función no modifica los String de los documentos de la forma "Texto s d", por lo que si se
+  cumple que s no contiene "\n" y s != "" al entrar a la funcion, se cumplirá lo mismo al salir.
+
+  Por último, asumamos que doc = Texto s1 d1 cumple el invariante. Si el resultado de (indentar n doc)
+  fuera de la forma "Texto s1 (Texto s2 d2)" (la primera línea no se modifica), necesariamente
+  "Texto s2 d2" es el resultado de "rec n", donde rec es el llamado recursivo evaluado en d1.
+  Pero si rec n = Texto s2 d2 entonces es porque foldDoc _ _ _ d1 entró por la rama del constructor Texto,
+  osea que d1 era de la forma Texto s' d' y no se estaba cumpliendo el invariante, lo cual es una contradicción.
+  O sea que si no se cumple el invariante a la salida es porque no se estaba cumpliendo a la entrada.
 -}
 
 
--- Ejercicio 4
+-- | Ejercicio 4 |
 
 nEspacios:: Int -> String
 nEspacios n = [const ' ' x | x <- [1..n] ]
-
--- Una funcion que toma un Int y devuelve una lista de chars que tiene solo " " y de largo n 
+-- Función auxiliar que toma un Int y devuelve una lista de Chars de largo n que tiene solo " ". 
 
 mostrar :: Doc -> String
-mostrar = foldDoc [] (\s rec -> s ++ rec) (\n rec ->"\n" ++ nEspacios n ++ rec)
-
+mostrar = foldDoc [] (++) (\ n rec -> "\n" ++ nEspacios n ++ rec)
 {-
-En el caso de Vacio hay que devolver una lista vacia ya que vamos a concatenar todo a partir de eso
-en el caso de Texto simplemente se concatena al llamado recursivo 
-en el caso de Linea tenes que concatenar el caracter de nueva linea ademas de que llamamos a nEspacion para concatenar la cantidad de espacio necesario
+  En el caso de Vacio hay que devolver una lista vacia ya que vamos a
+    concatenar todo a partir de eso, porque es el final del Doc.
+  En el caso de Texto simplemente se concatena el String al llamado
+    recursivo. Como se hace de derecha a izquierda, se mantiene el orden correcto.
+  En el caso de Linea hay que concatenar el caracter de nueva linea,
+    y llamar a nEspacion para concatenar la cantidad de espacio necesarios.
 -}
 
 imprimir :: Doc -> IO ()
