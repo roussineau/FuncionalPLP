@@ -14,15 +14,9 @@ data PPON
 pponAtomico :: PPON -> Bool
 pponAtomico (ObjetoPP _) = False
 pponAtomico _ = True
--- Si usa el constructor ObjetoPP da False, sino da True.
 
 
 -- | Ejercicio 6 |
-
-pponObjetoSimple :: PPON -> Bool
-pponObjetoSimple (ObjetoPP xs) = sonTodosAtomicos xs
-pponObjetoSimple _ = False
--- En caso de ser ObjetoPP llama a sonTodosAtomicos con su lista asociada, sino devuelve False.
 
 sonTodosAtomicos :: [(String, PPON)] -> Bool
 sonTodosAtomicos = foldr (\x rec -> pponAtomico (snd x) && rec) True
@@ -33,6 +27,10 @@ sonTodosAtomicos = foldr (\x rec -> pponAtomico (snd x) && rec) True
   sonTodosAtomicos [] = True
   sonTodosAtomicos ((s,p):xs) = pponAtomico p && sonTodosAtomicos xs
 -}
+
+pponObjetoSimple :: PPON -> Bool
+pponObjetoSimple (ObjetoPP xs) = sonTodosAtomicos xs
+pponObjetoSimple _ = False
 
 
 -- | Ejercicio 7 |
@@ -70,6 +68,7 @@ intercalar sep docs = intercalarPrima docs sep
 {-
   Intercalamos todos los elementos del inicio de la lista con un separador,
   y el último lo concatenamos para que no tenga ese separador sin sentido al final.
+  Notar que no es recursión explícita.
 -}
 
 
@@ -85,7 +84,7 @@ juntarLineas = foldDoc vacio (\s rec -> texto s <+> rec) (\n rec -> if empiezaCo
 
 lineasAEspacios :: Doc -> Doc
 lineasAEspacios = foldDoc vacio (\s rec -> texto s <+> rec) (\n rec -> texto " " <+> rec)
--- Función auxiliar que dado un Doc con una Linea, la reemplaza a esta por un espacio " ".
+-- Función auxiliar que dado un Doc con una Linea, reemplaza esta por un espacio " ".
 
 aplanar :: Doc -> Doc
 aplanar d = lineasAEspacios (juntarLineas d)
@@ -98,14 +97,16 @@ pponADoc ppon =
   case ppon of 
     TextoPP s -> texto (show s)
     IntPP n -> texto (show n)
-    ObjetoPP xs -> if sonTodosAtomicos xs then aplanar(casoObjeto xs) else casoObjeto xs
-  where casoObjeto = entreLlaves . map (\x ->texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
+    ObjetoPP xs -> if sonTodosAtomicos xs then aplanar (casoObjeto xs) else casoObjeto xs
+  where casoObjeto = entreLlaves . map (\x -> texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
 
 {-
-  En esta funcion el esquema de recursion corresponde a la recursion primitiva.
-  Esto es debido a que cada caso base se escribe en funcion de los parametros de los constructores base
-  y el caso recursivo se escribe en funcion de cada parametro del constructor que no es de tipo PPON,
-  el llamado recursivo con cada parametro de tipo PPON y el mismo parametro del constructor recursivo (de tipo [(String, PPON)])
-  Por esto ultimo es recursion primitiva y no estructural, necesitamos tambien del parametro del constructor recursivo
-  para resolver el problema.
+  En esta función, el esquema de recursión corresponde a la recursión primitiva
+  porque cada caso base se escribe en función de los parámetros de los constructores
+  base, y el caso recursivo se escribe en función de:
+     1) cada parámetro del constructor que no es de tipo PPON,
+     2) el llamado recursivo con cada parámetro de tipo PPON, y
+  -> 3) el mismo parámetro del constructor recursivo (de tipo [(String, PPON)]) <-
+  Por esto último es recursión primitiva y no estructural, ya que necesitamos
+  también del parámetro del constructor recursivo para resolver el problema.
 -}

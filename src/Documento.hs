@@ -52,16 +52,11 @@ foldDoc vacio fTexto fLinea doc =
 esTexto :: Doc -> Bool
 esTexto (Texto _ _) = True
 esTexto _ = False
--- Predicado auxiliar que devuelve True si y sólo si el parámetro es un Texto.
 
 añadirTextoAlPrincipio :: Doc -> String ->  Doc 
 añadirTextoAlPrincipio (Texto s1 d) s2 = Texto (s2++s1) d
 añadirTextoAlPrincipio d _ = d
-{-
-  Función auxiliar que recibe un Doc y un String.
-  Si el primer parámetro es Texto, concatena el String pasado al String del Texto.
-  Sino, no hace nada sobre ese primer parámetro.
--} 
+
 
 infixr 6 <+>
 
@@ -90,7 +85,7 @@ infixr 6 <+>
 indentarPrima :: Doc -> Int -> Doc
 indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 {-
-  Creamos la función auxiliar indentarPrima por sencillez a la hora de justificar en el punto 10,
+  Creamos la función auxiliar indentarPrima por sencillez a la hora de leer y justificar en el punto 10,
   pero tranquilamente podríamos haber hecho un flip a toda esta deficición en la definición de indentar.
 -}
 
@@ -124,7 +119,6 @@ indentar n doc = indentarPrima doc n
 
 nEspacios:: Int -> String
 nEspacios n = [const ' ' x | x <- [1..n] ]
--- Función auxiliar que toma un Int y devuelve una lista de Chars de largo n que tiene solo " ". 
 
 mostrar :: Doc -> String
 mostrar = foldDoc [] (++) (\ n rec -> "\n" ++ nEspacios n ++ rec)

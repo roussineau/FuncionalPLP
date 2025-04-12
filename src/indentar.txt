@@ -1,120 +1,136 @@
-Ejercicio 10
-Se pide demostar utilizando razonamiento ecuacional e induccion estructural que para todo
-n, m :: Int positivos y x :: Doc,
-indentar n (indentar m x) = indentar (n+m) x
+| Ejercicio 10 |
 
-La demostracion debe ser entregada en un archivo indentar.txt junto con el resto del codigo.
+Consigna:
+
+Se pide demostar utilizando razonamiento ecuacional e induccion estructural que para todo n, m :: Int positivos y x :: Doc,
+    indentar n (indentar m x) = indentar (n+m) x
+La demostración debe ser entregada en un archivo indentar.txt junto con el resto del código.
 Se sugiere demostrar y usar los siguientes lemas:
-
-{L0} indentar k Vacio = Vacio para todo k :: Int positivo.
-
-{L1} indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo,s :: String y d :: Doc.
-
-{L2} indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+{L0} indentar k Vacio = Vacio, para todo k :: Int positivo.
+{L1} indentar k (Texto s d) = Texto s (indentar k d), para todo k :: Int positivo, s :: String y d :: Doc.
+{L2} indentar m (Linea k d) = Linea (m+k) (indentar m d), para todo m, k :: Int positivos y d :: Doc.
 
 
-Hacemos induccion estructural en x :: Doc.
-Para mostrar que ∀ r :: Doc. P(r) ≡ ∀ n,m :: Int . indentar n (indentar m x) = indentar (n+m) x
-Basta con probar:
-*Caso base: P(Vacio)
-*Paso inductivo sobre constructor Texto:
-∀ d :: Doc . ∀ s :: String . (P(d) ==> P(Texto s d))
-*Paso inductivo sobre constructor Linea:
-∀ d :: Doc . ∀ l :: String . (P(d) ==> P(Linea l d))
+Solución:
 
---Caso base:
+Haremos inducción estructural en x :: Doc.
+Para demostrar que:
+    ∀ r :: Doc. P(r) ≡ ∀ n, m :: Int. indentar n (indentar m x) = indentar (n+m) x
+vale, nos basta con demostrar que valen:
+    * Caso base: P(Vacio).
+    * Caso inductivo sobre constructor Texto:
+        ∀ d :: Doc. ∀ s :: String. (P(d) => P(Texto s d))
+    * Caso inductivo sobre constructor Linea:
+        ∀ d :: Doc. ∀ l :: String. (P(d) => P(Linea l d))
+
+
+-- Caso base:
 P(Vacio) ≡ indentar n (indentar m Vacio) = indentar (n+m) Vacio
 
-    indentar (n+m) Vacio 
-=   Vacio {L0}
+    Izquierda:
+        indentar n (indentar m Vacio) 
+    =   indentar n (Vacio)              {L0} 
+    =   Vacio                           {L0}
+    Derecha:
+        indentar (n+m) Vacio 
+    =   Vacio                           {L0}
 
-    indentar n (indentar m Vacio) 
-=   indentar n (Vacio) {L0} 
-=   Vacio {L0}
+Luego, el caso base es verdadero.
 
 
---Paso inductivo sobre constructor Linea:
+-- Caso inductivo sobre constructor Linea:
 ∀ d :: Doc . ∀ l :: String . (P(d) ==> P(Linea l d))
 
-Hipotesis inductiva: P(d) ≡ indentar n (indentar m d) = indentar (n+m) d
-QVQ:
-Tesis inductiva: P(Linea l d) ≡ indentar n (indentar m (Linea l d)) = indentar (n+m) (Linea l d)
+    HI: P(d) ≡ indentar n (indentar m d) = indentar (n+m) d
+    QVQ:
+    TI: P(Linea l d) ≡ indentar n (indentar m (Linea l d)) = indentar (n+m) (Linea l d)
 
-    indentar n (indentar m (Linea l d))
-=   indentar n (Linea (m+l) (indentar m d)) {L2}
-=   Linea (n+m+l) (indentar n (indentar m d)) {L2}
-=   Linea (n+m+l) (indentar (n+m) d) {HI}
+    Izquierda de TI:
+        indentar n (indentar m (Linea l d))
+    =   indentar n (Linea (m+l) (indentar m d))         {L2}
+    =   Linea (n+m+l) (indentar n (indentar m d))       {L2}
+    =   Linea (n+m+l) (indentar (n+m) d)                {HI}
+    Derecha de TI:
+        indentar (n+m) (Linea l d)
+    =   Linea (n+m+l) (indentar (n+m) d)                {L2}
 
-    indentar (n+m) (Linea l d)
-=   Linea (n+m+l) (indentar (n+m) d) {L2}
+Luego, el caso inductivo sobre el constructor Linea es válido.
 
 
---Paso inductivo sobre constructor Texto:
+-- Caso inductivo sobre constructor Texto:
 ∀ d :: Doc . ∀ s :: String . (P(d) ==> P(Texto s d))
-Hipotesis inductiva: P(d) ≡ ∀ n,m :: Int . indentar n (indentar m d) = indentar (n+m) d
-QVQ:
-Tesis inductiva: P(Texto s d) ≡ ∀ n,m :: Int . indentar n (indentar m (Texto s d)) = indentar (n+m) (Texto s d)
 
-    indentar n (indentar m (Texto s d2))
-=   indentar n (Texto s (indentar m d2)) {L1}
-=   Texto s (indentar n (indentar m d2)) {L1}
-=   Texto s (indentar (n+m) d2) {HI}
+    HI: P(d) ≡ ∀ n,m :: Int . indentar n (indentar m d) = indentar (n+m) d
+    QVQ:
+    TI: P(Texto s d) ≡ ∀ n, m :: Int . indentar n (indentar m (Texto s d)) = indentar (n+m) (Texto s d)
 
-    indentar (n+m) (Texto s d2)
-=   Texto s (indentar (n+m) d2) {L1}
+    Izquierda de TI:
+        indentar n (indentar m (Texto s d2))
+    =   indentar n (Texto s (indentar m d2))            {L1}
+    =   Texto s (indentar n (indentar m d2))            {L1}
+    =   Texto s (indentar (n+m) d2)                     {HI}
+    Derecha de TI:
+        indentar (n+m) (Texto s d2)
+    =   Texto s (indentar (n+m) d2)                     {L1}
 
-Fin de demostracion ∎
+Luego, el caso inductivo sobre el constructor Texto es válido.
 
-A continuacion mostramos los lemas {L1} {L2} y {L3}
+Conclusión: como demostramos que los tres casos son válidos (el base y los dos inductivos sobre los 
+constructores recursivos), queda probado que P(r) vale ∀ r :: Doc.
+Fin de la demostración inductiva ∎
+
+
+A continuación demostraremos los lemas {L1}, {L2} y {L3}
 
 Recordamos las definiciones:
 
-      foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
-      foldDoc  vacio fTexto fLinea doc = case doc of
-{FD0}     Vacio -> vacio
-{FD1}     Texto x documento -> fTexto x (rec documento)
-{FD2}     Linea y documento -> fLinea y (rec documento)
+        foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
+        foldDoc vacio fTexto fLinea doc =
+          case doc of
+{FD0}       Vacio -> vacio
+{FD1}       Texto x documento -> fTexto x (rec documento)
+{FD2}       Linea y documento -> fLinea y (rec documento)
           where rec = foldDoc vacio fTexto fLinea 
     
-      indentar :: Int -> Doc -> Doc
-{ID}  indentar n doc = indentarPrima doc n
+        indentar :: Int -> Doc -> Doc
+{ID}    indentar n doc = indentarPrima doc n
 
-      indentarPrima :: Doc -> Int -> Doc
-{IP}  indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
+        indentarPrima :: Doc -> Int -> Doc
+{IP}    indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
 
 
-- Mostramos Lema 0:
-{L0} indentar k Vacio = Vacio para todo k :: Int positivo.
+-- Demostramos Lema 0:
+{L0} indentar k Vacio = Vacio, para todo k :: Int positivo.
 
     indentar k Vacio
 =   indentarPrima Vacio k {ID}
 =   foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) Vacio k {IP}
 =   const Vacio k {FD0}
-=   Vacio {def de const}
+=   Vacio {Def. de const}
 
-- Mostramos Lema 1: indentar k (Texto s d) = Texto s (indentar k d)
-{L1} indentar k (Texto s d) = Texto s (indentar k d) para todo k :: Int positivo, s :: String y d :: Doc.
+-- Demostramos Lema 1:
+{L1} indentar k (Texto s d) = Texto s (indentar k d), para todo k :: Int positivo, s :: String y d :: Doc.
 
     indentar k (Texto s d)
 =   indentarPrima (Texto s d) k {ID}
 =   foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) (Texto s d) k {IP}
 =   (\s' rec -> \n -> Texto s' (rec n)) s (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) k {FD1}
 =   (\s' rec -> \n -> Texto s' (rec n)) s (indentarPrima d) k {IP}
-=   (\s' -> \rec -> \n -> Texto s' (rec n)) s (indentarPrima d) k {Sintaxis Haskell}
+=   (\s' -> \rec -> \n -> Texto s' (rec n)) s (indentarPrima d) k {Sintaxis de Haskell}
 =   (\rec -> \n -> Texto s (rec n)) (indentarPrima d) k {Propiedad Beta}
 =   (\n -> Texto s (indentarPrima d n)) k {Propiedad Beta}
 =   Texto s (indentarPrima d k) {Propiedad Beta}
 =   Texto s (indentar k d) {ID}
 
-Mostramos Lema 2: indentar m (Linea k d) = Linea (m+k) (indentar m d)
-{L2} indentar m (Linea k d) = Linea (m+k) (indentar m d) para todo m, k :: Int positivos y d :: Doc.
+-- Demostramos Lema 2:
+{L2} indentar m (Linea k d) = Linea (m+k) (indentar m d), para todo m, k :: Int positivos y d :: Doc.
 
     indentar m (Linea k d)
 =   indentarPrima (Linea k d) m {ID}
 =   foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) (Linea k d) m {IP}
 =   (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) k (foldDoc (const Vacio) (\s' rec -> \n -> Texto s' (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) d) m {FD2}
 =   (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {IP}
-=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {Sintaxis Haskell}
+=   (\n1 -> \rec -> \n2 -> Linea (n1+n2) (rec n2)) k (indentarPrima d) m {Sintaxis de Haskell}
 =   (\rec -> \n2 -> Linea (k + n2) (rec n2)) (indentarPrima d) m {Propiedad Beta}
 =   (\n2 -> Linea (k + n2) (indentarPrima d n2)) m {Propiedad Beta}
 =   Linea (k + m) (indentarPrima d m) {Propiedad Beta}
