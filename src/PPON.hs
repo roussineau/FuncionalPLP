@@ -64,7 +64,7 @@ intercalarPrima = foldr (\x rec -> \sep -> x <+> sep <+> rec sep) (const vacio)
 
 intercalar :: Doc -> [Doc] -> Doc
 intercalar _ [] = vacio
-intercalar sep docs = intercalarPrima docs sep 
+intercalar sep docs = intercalarPrima (init docs) sep <+> last docs
 {-
   Intercalamos todos los elementos del inicio de la lista con un separador,
   y el último lo concatenamos para que no tenga ese separador sin sentido al final.

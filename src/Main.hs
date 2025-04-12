@@ -27,18 +27,21 @@ testsEj2 =
     [ vacio <+> vacio ~?= vacio,
       texto "a" <+> texto "b" ~?= texto "ab",
       (texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b"),
-      -- test propios
-      -- por como funciona el (<+>) solo importa el ultimo elemento antes de Vacio con respecto al primer parametro y el primer elemento del segundo parametro.
-      -- lo que venga antes  y despues de esto no imorta ya que no se tocan.
-      -- entonces, hay 6 casos por ver
-      -- Texto <+> Vacio
+      {-
+        Test propios:
+        Por cómo funciona el (<+>), sólo importa el último elemento antes de Vacio
+        con respecto al primer parámetro y el primer elemento del segundo parámetro.
+        Lo que venga antes y después de esto no importa ya que no se tocan.
+        Entonces, solo hay 6 casos por ver:
+          Texto <+> Vacio,
+          Vacio <+> Texto
+          Texto <+> Linea 
+          Linea <+> Texto
+          Linea <+> Linea
+          Texto <+> Texto
+      -}
       texto "a" <+> vacio ~?= texto "a",
-      -- Vacio <+> Texto
       vacio <+> texto "a" ~?= texto "a"
-      -- Texto <+> Linea 
-      --Linea  <+> Texto
-      --Linea  <+> Linea
-      --Texto  <+> Texto
     ]
 
 testsEj3 :: Test
@@ -48,7 +51,7 @@ testsEj3 =
       indentar 2 (texto "a") ~?= texto "a",
       indentar 2 (texto "a" <+> linea <+> texto "b") ~?= texto "a" <+> indentar 2 (linea <+> texto "b"),
       indentar 2 (linea <+> texto "a") ~?= indentar 1 (indentar 1 (linea <+> texto "a")),
-      --tests propios siguen
+      -- Tests propios:
       indentar 0 (texto "a" <+> linea <+> texto "b") ~?= texto "a" <+> linea <+> texto "b",
       indentar 3 (linea <+> linea <+> texto "b") ~?= indentar 1 (indentar 2 (linea <+> linea <+> texto "b")),
       indentar 3 (linea <+> linea <+> texto "b") ~?= indentar 2 (indentar 1 (linea <+> linea <+> texto "b")),
@@ -72,13 +75,15 @@ merlina = ObjetoPP [("nombre", TextoPP "Merlina"), ("edad", IntPP 24)]
 addams = ObjetoPP [("0", pericles), ("1", merlina)]
 familias = ObjetoPP [("Addams", addams)]
 
---ppons de test propios
+-- PPONs de test propios:
 nivel1, nivel2, nivel3, nivel4 :: PPON
 nivel1 = ObjetoPP [("info", TextoPP "Nivel 1"), ("siguiente", nivel2)]
 nivel2 = ObjetoPP [("info", TextoPP "Nivel 2"), ("siguiente", nivel3)]
 nivel3 = ObjetoPP [("info", TextoPP "Nivel 3"), ("siguiente", nivel4)]
 nivel4 = ObjetoPP [("info", TextoPP "Nivel 4")]
-objetolistavacia =ObjetoPP []
+
+objetolistavacia :: PPON
+objetolistavacia = ObjetoPP []
 
 pponAnidado :: Int -> PPON
 pponAnidado 0 = TextoPP "Nivel 0 Fin"
@@ -109,7 +114,7 @@ testsEj6 =
       pponObjetoSimple nivel1 ~?= False,
       pponObjetoSimple nivel2 ~?= False,
       pponObjetoSimple nivel3 ~?= False,
-      pponObjetoSimple nivel4 ~?= False,
+      pponObjetoSimple nivel4 ~?= True,
       pponObjetoSimple objetolistavacia ~?= True,
       pponObjetoSimple (TextoPP "a") ~?= False,
       pponObjetoSimple (IntPP 2) ~?= False
@@ -128,7 +133,7 @@ testsEj7 =
       mostrar (intercalar (texto ", ") [a, b, c]) ~?= "a, b, c",
       mostrar (entreLlaves []) ~?= "{ }",
       mostrar (entreLlaves [a, b, c]) ~?= "{\n  a,\n  b,\n  c\n}",
-      --tests propios siguen
+      -- Tests propios:
       intercalar (vacio) [a, b, c] ~?= texto "abc",
       intercalar a [b, l, c] ~?= texto "ba" <+> l <+> a <+> c,
       intercalar l [a,b,c] ~?= a <+> l <+> b <+> l <+> c,
@@ -153,21 +158,7 @@ testsEj9 =
     [ mostrar (pponADoc pericles) ~?= "{ \"nombre\": \"Pericles\", \"edad\": 30 }",
       mostrar (pponADoc addams) ~?= "{\n  \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n  \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n}",
       mostrar (pponADoc familias) ~?= "{\n  \"Addams\": {\n    \"0\": { \"nombre\": \"Pericles\", \"edad\": 30 },\n    \"1\": { \"nombre\": \"Merlina\", \"edad\": 24 }\n  }\n}",
-      --tests propios siguen:
+      -- Tests propios:
       mostrar (pponADoc nivel3) ~?= "{\n  \"info\": \"Nivel 3\",\n  \"siguiente\": { \"info\": \"Nivel 4\" }\n}",
       mostrar (pponADoc nivel1) ~?= "{\n  \"info\": \"Nivel 1\",\n  \"siguiente\": {\n    \"info\": \"Nivel 2\",\n    \"siguiente\": {\n      \"info\": \"Nivel 3\",\n      \"siguiente\": { \"info\": \"Nivel 4\" }\n    }\n  }\n}"
     ]
---nivel1, nivel2, nivel3, nivel4 :: PPON
---nivel1 = ObjetoPP [("info", TextoPP "Nivel 1"), ("siguiente", nivel2)]
---nivel2 = ObjetoPP [("info", TextoPP "Nivel 2"), ("siguiente", nivel3)]
---nivel3 = ObjetoPP [("info", TextoPP "Nivel 3"), ("siguiente", nivel4)]
---nivel4 = ObjetoPP [("info", TextoPP "Nivel 4")]
-
---pponAnidado :: Int -> PPON
---pponAnidado 0 = TextoPP "Nivel 0 Fin"
---pponAnidado n = ObjetoPP [("Nivel " ++ show n, pponAnidado (n-1))]
-
---testsllavesSimples = 
-  --test 
-    --[ 
-    --]
