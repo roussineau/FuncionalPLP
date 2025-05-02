@@ -1,6 +1,6 @@
 module PPON where
   
-import Documento
+import Documento 
 
 data PPON
   = TextoPP String
@@ -48,8 +48,11 @@ entreLlaves ds =
     <+> texto "}"
 -- Definida tal cual como en el PDF
 
-intercalarPrima :: [Doc] -> Doc -> Doc
-intercalarPrima = foldr (\x rec -> \sep -> x <+> sep <+> rec sep) (const vacio)
+
+intercalar ::  Doc -> [Doc]  -> Doc
+intercalar _ [] = texto ""
+intercalar sep xs= foldr1 (\x rec -> x <+> sep <+> rec )  xs
+
 {-
   Función que espera una lista de Docs, un separador, y se lo agrega al final
   a todos los elementos del arreglo.
@@ -62,9 +65,7 @@ intercalarPrima = foldr (\x rec -> \sep -> x <+> sep <+> rec sep) (const vacio)
   intercalarPrima (x:xs) = (\sep -> x <+> sep <+> intercalarPrima xs sep)
 -}
 
-intercalar :: Doc -> [Doc] -> Doc
-intercalar _ [] = vacio
-intercalar sep docs = intercalarPrima (init docs) sep <+> last docs
+
 {-
   Intercalamos todos los elementos del inicio de la lista con un separador,
   y el último lo concatenamos para que no tenga ese separador sin sentido al final.
@@ -74,21 +75,13 @@ intercalar sep docs = intercalarPrima (init docs) sep <+> last docs
 
 -- | Ejercicio 8 |
 
-empiezaConLinea :: Doc -> Bool
-empiezaConLinea = foldDoc False (\s rec -> False) (\n rec -> True)
--- Predicado auxiliar hecho con foldDoc porque no podemos hacer pattern matching con los constructores.
-
-juntarLineas :: Doc -> Doc
-juntarLineas = foldDoc vacio (\s rec -> texto s <+> rec) (\n rec -> if empiezaConLinea rec then rec else linea <+> rec)
--- Función auxiliar que dado un Doc, si tiene dos lineas seguidas o más las junta en una sola.
-
-lineasAEspacios :: Doc -> Doc
-lineasAEspacios = foldDoc vacio (\s rec -> texto s <+> rec) (\n rec -> texto " " <+> rec)
--- Función auxiliar que dado un Doc con una Linea, reemplaza esta por un espacio " ".
-
 aplanar :: Doc -> Doc
-aplanar d = lineasAEspacios (juntarLineas d)
+aplanar doc = if empiezaConLinea doc then texto " " <+> foldDoc vacio fTexto fLinea doc else foldDoc vacio fTexto fLinea doc
+    where fTexto s recDoc  = if recDoc == vacio then texto s else texto (s ++ " ") <+> recDoc
+          fLinea n recDoc  = recDoc
+          empiezaConLinea = foldDoc False (\s rec -> False) (\n rec -> True)
 
+-- ver el tema del if del princupio y hacer justificacion
 
 -- | Ejercicio 9 |
 
@@ -98,7 +91,10 @@ pponADoc ppon =
     TextoPP s -> texto (show s)
     IntPP n -> texto (show n)
     ObjetoPP xs -> if sonTodosAtomicos xs then aplanar (casoObjeto xs) else casoObjeto xs
-  where casoObjeto = entreLlaves . map (\x -> texto (show (fst x)) <+> texto ": " <+> pponADoc (snd x))
+  where casoObjeto = entreLlaves . map (\(fst,snd) -> texto (show fst) <+> texto ": " <+> pponADoc snd)
+
+  -- fijarse si cambiar el nombre de fst snd
+  --haría más hincapié en que se utiliza la subestructura sin aplicarle la recursión cuando se quiere verificar que es un pponObjetoSimple.
 
 {-
   En esta función, el esquema de recursión corresponde a la recursión primitiva

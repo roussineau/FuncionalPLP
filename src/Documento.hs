@@ -49,23 +49,17 @@ foldDoc vacio fTexto fLinea doc =
 
 -- | Ejercicio 2 |
 
-esTexto :: Doc -> Bool
-esTexto (Texto _ _) = True
-esTexto _ = False
-
-añadirTextoAlPrincipio :: Doc -> String ->  Doc 
-añadirTextoAlPrincipio (Texto s1 d) s2 = Texto (s2++s1) d
-añadirTextoAlPrincipio d _ = d
-
 
 infixr 6 <+>
-
 (<+>) :: Doc -> Doc -> Doc
 (<+>) = foldDoc id fTexto fLinea
-  where fTexto x rec doc = if esTexto (rec doc)
-                           then añadirTextoAlPrincipio doc x
-                           else Texto x (rec doc)
-        fLinea n rec doc = Linea n (rec doc)
+  where fTexto s1 recDoc1 doc2 = case recDoc1 doc2 of
+                          Vacio -> Texto s1 (recDoc1 doc2)     
+                          Linea n doc3 -> Texto s1 (recDoc1 doc2)
+                          Texto s2 doc3 -> Texto (s1++s2) doc3
+        fLinea n recDoc1 doc2 = Linea n (recDoc1 doc2)
+--IMPORTANTE, cambiar el nombre de doc3, a que se refiere: El segundo documento está fijo, podría ir a la izquierda del =. 
+-- JUSTIFICAR
 {-
   Toma un Doc y devuelve una función que toma otro Doc y devuelve un Doc, que sería el resultado esperado.
 
@@ -82,15 +76,14 @@ infixr 6 <+>
 
 -- | Ejercicio 3 |
 
-indentarPrima :: Doc -> Int -> Doc
-indentarPrima = foldDoc (const Vacio) (\s rec -> \n -> Texto s (rec n)) (\n1 rec -> \n2 -> Linea (n1+n2) (rec n2))
+--Justificación) Venían bien pero se complicaron en la última parte, podrían haber dicho directamente que el Texto no se modifica por lo cual no se puede romper el invariante.
 {-
   Creamos la función auxiliar indentarPrima por sencillez a la hora de leer y justificar en el punto 10,
   pero tranquilamente podríamos haber hecho un flip a toda esta deficición en la definición de indentar.
 -}
 
 indentar :: Int -> Doc -> Doc
-indentar n doc = indentarPrima doc n
+indentar n  = foldDoc Vacio (\s rec -> Texto s rec) (\n1 rec -> Linea (n1+n) rec) 
 {-
   Indentar le pasa el parametro de tipo documento a la funcion indentarPrima
   para que pueda ser procesado con recursion estructural usando foldDoc.
@@ -117,11 +110,12 @@ indentar n doc = indentarPrima doc n
 
 -- | Ejercicio 4 |
 
-nEspacios:: Int -> String
-nEspacios n = [const ' ' x | x <- [1..n] ]
 
 mostrar :: Doc -> String
 mostrar = foldDoc [] (++) (\ n rec -> "\n" ++ nEspacios n ++ rec)
+          where nEspacios n = replicate n ' '
+--sacar el where?????
+
 {-
   En el caso de Vacio hay que devolver una lista vacia ya que vamos a
     concatenar todo a partir de eso, porque es el final del Doc.
