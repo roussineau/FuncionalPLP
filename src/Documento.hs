@@ -52,13 +52,11 @@ foldDoc vacio fTexto fLinea doc =
 
 infixr 6 <+>
 (<+>) :: Doc -> Doc -> Doc
-(<+>) = foldDoc id fTexto fLinea
-  where fTexto s1 recDoc1 doc2 = case recDoc1 doc2 of
-                          Vacio -> Texto s1 (recDoc1 doc2)     
-                          Linea n doc3 -> Texto s1 (recDoc1 doc2)
-                          Texto s2 doc3 -> Texto (s1++s2) doc3
-        fLinea n recDoc1 doc2 = Linea n (recDoc1 doc2)
---IMPORTANTE, cambiar el nombre de doc3, a que se refiere: El segundo documento está fijo, podría ir a la izquierda del =. 
+(<+>) doc1 doc2 = foldDoc doc2 fTexto Linea doc1
+  where fTexto s1 rec  = case rec  of
+                          Texto s2 rec' -> Texto (s1++s2) rec'
+                          _ -> Texto s1 rec  
+--IMPORTANTE, cambiar el nombre de rec', a que se refiere: El segundo documento está fijo, podría ir a la izquierda del =. 
 -- JUSTIFICAR
 {-
   Toma un Doc y devuelve una función que toma otro Doc y devuelve un Doc, que sería el resultado esperado.
@@ -71,6 +69,8 @@ infixr 6 <+>
       al final del Doc 1. Al estar en el último Texto del Doc 1, devuelvo el Doc 2 con el string de ese texto añadido.
     Si el predicado devuelve False:
       Como el Doc 2 ya se concatenó, devuelvo la concatenación realizada.
+justificar porque el doc2 sigue cumpliendo el invariante
+
 -}
 
 

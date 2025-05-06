@@ -146,7 +146,7 @@ testsEj8 =
   test
     [ mostrar (aplanar (a <+> linea <+> b <+> linea <+> c)) ~?= "a b c",
       mostrar (aplanar (a  <+> b  <+> c)) ~?= "abc",
-      mostrar(aplanar (a <+> linea <+> b <+> linea <+> linea <+> linea <+> c)) ~?= "a b c",
+      mostrar(aplanar (a <+> linea <+> b <+> linea <+> linea <+> linea <+> c)) ~?= "a b   c",
       aplanar (vacio) ~?= vacio,
       aplanar (a) ~?= a,
       mostrar (aplanar (linea)) ~?= " "

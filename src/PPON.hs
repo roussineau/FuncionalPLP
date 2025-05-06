@@ -76,10 +76,7 @@ intercalar sep xs= foldr1 (\x rec -> x <+> sep <+> rec )  xs
 -- | Ejercicio 8 |
 
 aplanar :: Doc -> Doc
-aplanar doc = if empiezaConLinea doc then texto " " <+> foldDoc vacio fTexto fLinea doc else foldDoc vacio fTexto fLinea doc
-    where fTexto s recDoc  = if recDoc == vacio then texto s else texto (s ++ " ") <+> recDoc
-          fLinea n recDoc  = recDoc
-          empiezaConLinea = foldDoc False (\s rec -> False) (\n rec -> True)
+aplanar = foldDoc vacio (\s rec -> texto s <+> rec) (\n rec -> texto " " <+> rec)
 
 -- ver el tema del if del princupio y hacer justificacion
 
