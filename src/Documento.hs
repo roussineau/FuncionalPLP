@@ -30,7 +30,7 @@ texto t | '\n' `elem` t = error "El texto no debe contener saltos de línea"
 texto [] = Vacio
 texto t = Texto t Vacio
 
-
+--por hacer, rehacer justificacion ejercicio 2, ver justificacion ejercicio 3, cambiar justificacion 6 (facil), cambiar justificacion 7, hacer justificacion 8,
 -- | Ejercicio 1 |
 
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
@@ -56,7 +56,7 @@ infixr 6 <+>
   where fTexto s1 rec  = case rec  of
                           Texto s2 rec' -> Texto (s1++s2) rec'
                           _ -> Texto s1 rec  
---IMPORTANTE, cambiar el nombre de rec', a que se refiere: El segundo documento está fijo, podría ir a la izquierda del =. 
+
 -- JUSTIFICAR
 {-
   Toma un Doc y devuelve una función que toma otro Doc y devuelve un Doc, que sería el resultado esperado.
@@ -112,9 +112,8 @@ indentar n  = foldDoc Vacio (\s rec -> Texto s rec) (\n1 rec -> Linea (n1+n) rec
 
 
 mostrar :: Doc -> String
-mostrar = foldDoc [] (++) (\ n rec -> "\n" ++ nEspacios n ++ rec)
-          where nEspacios n = replicate n ' '
---sacar el where?????
+mostrar = foldDoc [] (++) (\ n rec -> "\n" ++ replicate n ' ' ++ rec)
+
 
 {-
   En el caso de Vacio hay que devolver una lista vacia ya que vamos a

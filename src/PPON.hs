@@ -19,7 +19,8 @@ pponAtomico _ = True
 -- | Ejercicio 6 |
 
 sonTodosAtomicos :: [(String, PPON)] -> Bool
-sonTodosAtomicos = foldr (\x rec -> pponAtomico (snd x) && rec) True
+--sonTodosAtomicos = foldr (\x rec -> pponAtomico (snd x) && rec) True
+sonTodosAtomicos = all (\(x,y) -> pponAtomico y)
 {-
   Se fija si los segundos elementos de las tuplas son PPONes atómicos, y los pasa todos por (&&)
 
