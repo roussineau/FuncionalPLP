@@ -55,9 +55,8 @@ pponADoc ppon =
     TextoPP s -> texto (show s)
     IntPP n -> texto (show n)
     ObjetoPP xs -> if pponObjetoSimple (ObjetoPP xs) then aplanar (casoObjeto xs) else casoObjeto xs
-  where casoObjeto = entreLlaves . map (\(fst,snd) -> texto (show fst) <+> texto ": " <+> pponADoc snd)
+  where casoObjeto = entreLlaves . map (\(x,y) -> texto (show x) <+> texto ": " <+> pponADoc y)
 
-  -- fijarse si cambiar el nombre de fst snd
   --haría más hincapié en que se utiliza la subestructura sin aplicarle la recursión cuando se quiere verificar que es un pponObjetoSimple.
 
 {-

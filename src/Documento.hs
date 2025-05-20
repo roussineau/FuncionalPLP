@@ -30,7 +30,9 @@ texto t | '\n' `elem` t = error "El texto no debe contener saltos de línea"
 texto [] = Vacio
 texto t = Texto t Vacio
 
---por hacer, cambiar justificacion 6 (facil), cambiar justificacion 7, hacer justificacion 8,
+--por hacer, reguntar si hacer justificaciones, preguntar justificacion del 2 y 3
+--cambiar justificacion 6 (facil), cambiar justificacion 7, hacer justificacion 8, ver correcion justificacion 9
+
 -- | Ejercicio 1 |
 
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
@@ -57,7 +59,7 @@ infixr 6 <+>
                           Texto s2 rec' -> Texto (s1++s2) rec'
                           _ -> Texto s1 rec  
 
--- JUSTIFICAR
+
 {-
 Suponemos que tanto doc1 como doc2 cumplen el invariante dado, 
 esto significa que no tienen dos Textos seguidos, que la indentacion de una linea sea >= 0, 
@@ -89,7 +91,6 @@ entonces nuestra funcion de concatenacion, va a devolver un documento concatenad
 
 -- | Ejercicio 3 |
 
---Justificación) Venían bien pero se complicaron en la última parte, podrían haber dicho directamente que el Texto no se modifica por lo cual no se puede romper el invariante.
 indentar :: Int -> Doc -> Doc
 indentar n  = foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) 
 {-
