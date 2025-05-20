@@ -30,16 +30,16 @@ texto t | '\n' `elem` t = error "El texto no debe contener saltos de línea"
 texto [] = Vacio
 texto t = Texto t Vacio
 
---por hacer, rehacer justificacion ejercicio 2, ver justificacion ejercicio 3, cambiar justificacion 6 (facil), cambiar justificacion 7, hacer justificacion 8,
+--por hacer, cambiar justificacion 6 (facil), cambiar justificacion 7, hacer justificacion 8,
 -- | Ejercicio 1 |
 
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
-foldDoc vacio fTexto fLinea doc =
+foldDoc fvacio fTexto fLinea doc =
   case doc of
-    Vacio -> vacio
+    Vacio -> fvacio
     Texto x documento -> fTexto x (rec documento)
     Linea y documento -> fLinea y (rec documento)
-  where rec = foldDoc vacio fTexto fLinea 
+  where rec = foldDoc fvacio fTexto fLinea 
 {-
   Es un fold de un tipo algebraico siguiendo la estructura tal cual
   vimos en las clases prácticas. Recibe una función para el constructor
@@ -59,17 +59,30 @@ infixr 6 <+>
 
 -- JUSTIFICAR
 {-
-  Toma un Doc y devuelve una función que toma otro Doc y devuelve un Doc, que sería el resultado esperado.
+Suponemos que tanto doc1 como doc2 cumplen el invariante dado, 
+esto significa que no tienen dos Textos seguidos, que la indentacion de una linea sea >= 0, 
+que cada String de ambos documentos no tiene el caracter del salto de linea y que ambos no son el String vacio.
 
-  Intuitivamente, el Vacio del primer Doc podría ser remplazado por el segundo Doc. Sin embargo, esto incumpliría
-  el invariante si el Doc resultante tiene en alguna parte algo de la forma Texto String (Texto String _).
-  Por eso utilizamos un condicional en fTexto que:
-    Si el predicado devuelve True:
-      Como asumimos que ambos Doc cumplen el invariante, esto solo puede llegar a pasar cuando ya se concatenó el Doc 2
-      al final del Doc 1. Al estar en el último Texto del Doc 1, devuelvo el Doc 2 con el string de ese texto añadido.
-    Si el predicado devuelve False:
-      Como el Doc 2 ya se concatenó, devuelvo la concatenación realizada.
-justificar porque el doc2 sigue cumpliendo el invariante
+Nosotros foldeamos el doc1, en cada constructor aplicamos una funcion para que devuelva los dos documentos concatenados,
+
+flinea, deja la linea como estaba originalmente en el doc1, por lo tanto la indetacion va a ser >= 0, se mantiene el invariante.
+
+ftexto, deja el texto como estaba en caso de que el proximo no sea texto, 
+pero como el documento original cumple el invariante de que no hay textos seguidos, lo deja tal como esta, manteniendo el invariante.
+
+fvacio, como el objetivo es concatenar documentos, remplazo el Vacio por el doc2, asi quedando ambos documentos concatenados
+y como doc2 cumple el invariante, la concatenacion va a cumplir el invariante. Caso contrario el invariante podria llegar a romperse si
+doc1 termina con Texto "s1" Vacio y doc2 inicia con Texto.
+Esto lo solucionamos con la ftexto que concatena ambos Strings. Tanto s1 y s2 cumplen el invariante 
+por esta razon la concatenacion de ambos Strings tambien cumpliran el invariante. Notar que esto solamente sucede si hay dos textos seguidos,
+que como el doc1 y el doc2 cumplen el invariante, esto solo va suceder en el caso mencionado, y en ningun otra parte del doc1.
+
+El doc2 se mantiene igual a no ser que el doc1 termina con Texto "s1" Vacio y doc2 inicia con Texto. en tal caso sucede lo explicado anteriormente
+y se modifica el primer texto del doc2, esto cumple el invariante por la justificacion dada y como el resto del documento no se modifica
+seguiria manteniendo el invariante
+
+Dado todos los casos cubiertos, demostramos que siempre se cumple el invariante basandonos en que doc1 y doc2 cumplen el invariante
+entonces nuestra funcion de concatenacion, va a devolver un documento concatenado que tambien cumple el invariante.
 
 -}
 
@@ -77,34 +90,26 @@ justificar porque el doc2 sigue cumpliendo el invariante
 -- | Ejercicio 3 |
 
 --Justificación) Venían bien pero se complicaron en la última parte, podrían haber dicho directamente que el Texto no se modifica por lo cual no se puede romper el invariante.
-{-
-  Creamos la función auxiliar indentarPrima por sencillez a la hora de leer y justificar en el punto 10,
-  pero tranquilamente podríamos haber hecho un flip a toda esta deficición en la definición de indentar.
--}
-
 indentar :: Int -> Doc -> Doc
-indentar n  = foldDoc Vacio (\s rec -> Texto s rec) (\n1 rec -> Linea (n1+n) rec) 
+indentar n  = foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) 
 {-
-  Indentar le pasa el parametro de tipo documento a la funcion indentarPrima
-  para que pueda ser procesado con recursion estructural usando foldDoc.
+Supongamos que el doc que nos pasan cumple el invariante.
+esto significa que no tiene dos Textos seguidos, que la indentacion de cada Linea es >= 0,
+que cada String no tiene el caracter del salto de linea y no es String vacio.
 
-  En el caso de Vacio, queda igual.
-  En el caso de Texto, llamamos recursivamente la funcion sobre su constructor recursivo de tipo
-    Doc, e indentamos el documento que le sigue.
-  En el caso de Linea, le sumamos n espacios y recursivamente indentamos el documento que sigue.
+Nosotros foldeamos el doc, en cada constructor aplicamos una funcion para que devuelva el documento indentado,
 
-  Como el n >= 0 (precondicion de la función) al sumarlo con los espacios
-    de los documentos del constructor "Linea m d" se mantiene que n+m >= 0.
+fvacio, devolvemos Vacio. Cumple el invariante
 
-  A su vez, la función no modifica los String de los documentos de la forma "Texto s d", por lo que si se
-  cumple que s no contiene "\n" y s != "" al entrar a la funcion, se cumplirá lo mismo al salir.
+ftexto, dejamos el Texto como estaba originalmente en el doc, al no tener ninguna modificacion se sigue manteniendo el invariante
 
-  Por último, asumamos que doc = Texto s1 d1 cumple el invariante. Si el resultado de (indentar n doc)
-  fuera de la forma "Texto s1 (Texto s2 d2)" (la primera línea no se modifica), necesariamente
-  "Texto s2 d2" es el resultado de "rec n", donde rec es el llamado recursivo evaluado en d1.
-  Pero si rec n = Texto s2 d2 entonces es porque foldDoc _ _ _ d1 entró por la rama del constructor Texto,
-  osea que d1 era de la forma Texto s' d' y no se estaba cumpliendo el invariante, lo cual es una contradicción.
-  O sea que si no se cumple el invariante a la salida es porque no se estaba cumpliendo a la entrada.
+flinea, la unica modificacion realizada al documento se encuentra en la indentacion de cada Linea, donde sumamos n con la indentacion de la Linea.
+Por precondicion sabemos que n >= 0, y por invariante la indentacion es >= 0, por lo tanto la suma tambien lo va a ser.
+
+como cada funcion solo hace modificaiones adentro de su constructor, no se va a modificar la estructura del documento, por lo tanto
+se mantiene el invariante de que no hay dos Textos seguidos, y al no modificarse ningun String se sigue manteniendo que no hay String vacio y 
+que no tienen el caracter de salto de linea.
+
 -}
 
 

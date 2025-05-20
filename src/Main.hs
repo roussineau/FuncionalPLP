@@ -27,19 +27,8 @@ testsEj2 =
     [ vacio <+> vacio ~?= vacio,
       texto "a" <+> texto "b" ~?= texto "ab",
       (texto "a" <+> linea) <+> texto "b" ~?= texto "a" <+> (linea <+> texto "b"),
-      {-
-        Test propios:
-        Por cómo funciona el (<+>), sólo importa el último elemento antes de Vacio
-        con respecto al primer parámetro y el primer elemento del segundo parámetro.
-        Lo que venga antes y después de esto no importa ya que no se tocan.
-        Entonces, solo hay 6 casos por ver:
-          Texto <+> Vacio,
-          Vacio <+> Texto
-          Texto <+> Linea 
-          Linea <+> Texto
-          Linea <+> Linea
-          Texto <+> Texto
-      -}
+      
+      --  Test propios:     
       texto "a" <+> vacio ~?= texto "a",
       vacio <+> texto "a" ~?= texto "a"
     ]
