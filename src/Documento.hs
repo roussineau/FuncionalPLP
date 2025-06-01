@@ -63,36 +63,48 @@ infixr 6 <+>
   * No tienen dos Textos seguidos;
   * La indentación de sus Lineas es >= 0;
  
-  Queremos ver que ∀doc1::Doc.∀doc2::Doc.la funcion devuelve los dos documentos concatenados. Y, a su vez, que cumple el invariante. 
-  Como operamos recursivamente sobre el doc1, hacemos induccion sobre la estrucutra de doc1.
-  
-  Caso base: doc1 = Vacio. 
-    La concatenacion de un documento vacio con otro documento debería de dar el otro documento, por eso devolvemos el doc2. Notar que, como el doc2 “entra” cumpliendo el invariante, va a salir cumpliendo el invariante. 
-    Con esto probamos que en el caso base se cumple el invariante.
-  
-  Caso recursivo: doc1 = Texto s d/Linea n d
-  Como hipótesis inductiva tenemos que d cumple el invariante. Debemos verificar que la extensión lo sigue cumpliendo.
+  Queremos ver que `∀doc1::Doc.∀doc2::Doc. doc1 <+> doc2` devuelve un Doc que mantiene el invariante, siempre y cuando doc1 y doc2 cumplan el invariante.
+  Haremos inducción estructural sobre doc1:
 
-    Veamos primero el caso doc1 = Linea n d
-      La fLinea deja la Linea como estaba originalmente en el doc1. Como suponemos que el doc1 cumple el invariante, la indentación va a ser >= 0. Por lo tanto, al unirla a d, va a seguir cumpliendo el invariante. 
-      Asimismo, al concatenar ese pedazo del doc1 a d logramos que se siga manteniendo la estructura del doc1. Entonces en el caso de doc1 = Linea n d, la flinea provoca que se siga cumpliendo el invariante.
+  CASO BASE: doc1 = Vacio
+    Vacio <+> doc2 = foldDoc doc2 fTexto Linea Vacio = doc2
+    * Como doc2 cumple el invariante, se mantiene el invariante.
+
+  CASOS INDUCTIVOS:
+    HI: Para el documento d, se tiene que `d <+> doc2` cumple el invariante.
+    QVQ: `Texto s d <+> doc2` y `Linea n d <+> doc2` cumplen el invariante.
+
+    Caso doc1 = Texto s d:
+        Texto s d <+> doc2 =
+        foldDoc doc2 fTexto Linea (Texto s d) =
+        fTexto s (rec d) =
+        fTexto s (foldDoc doc2 fTexto Linea d) =
+        fTexto s (d <+> doc2)
+      Llamemos rec' a (d <+> doc2):
+      Si rec' empieza con Texto, tal que tiene la forma Texto s2 r:
+        fTexto s (Texto s2 r) =
+        Texto (s1 ++ s2) r
+        * Como por invariante ni s1 ni s2 son strings vacíos ni contienen saltos de línea, su concatenación tampoco.
+        * Evitamos tener dos Textos consecutivos.
+        * r cumple el invariante porque es subdocumento de rec', que por HI cumple el invariante.
+      Sino:
+        Texto s1 rec'
+        * s1 no es string vacío ni tiene saltos de línea por precondición.
+        * Como rec' no empieza con Texto, no tenemos dos Textos seguidos.
+        * Por HI, rec' cumple el invariante.
     
-    Veamos el caso doc1 = Texto s d
-      La fTexto deja el texto como estaba originalmente en doc1 (EN CASO DE QUE d NO SEA TEXTO). Como suponemos que el doc1 cumple el invariante, s no va a estar vacio o tener caracter de saltos de línea. 
-      Tambien, como suponemos que d no es Texto, puedo unirlo a d, y esto va a seguir cumpliendo el invariante. Asimismo al concatenar ese pedazo del doc1 a d logramos que se siga manteniendo la estructura del doc1.
+    Caso doc1 = Linea n d:
+        Linea n d <+> doc2 =
+        foldDoc doc2 fTexto Linea (Linea n d) =
+        Linea n (rec d) =
+        Linea n (foldDoc doc2 fTexto Linea d) =
+        Linea n (d <+> doc2)
+        * Preservamos la línea original, sin modificar su indentación. Como n >= 0 por invariante de doc1, se mantiene esta propiedad.
+        * Por HI, d <+> doc2 cumple el invariante.
 
-      Sin embargo, en el caso de que d sea texto, esto solo va a ocurrir si doc1 termina con Texto s Vacio y doc2 empieza con Texto s'' d''. Esto se debe a lo siguiente: 
-      Cuando llegamos al Vacio del doc1 y ponemos el doc2, quedaria Texto s (Texto s'' d''). De esta forma se estaría incumpliendo el invariante. Notar que no pasaria en ninguna otra parte porque doc 1 y doc 2 cumple el invariante. 
-      Por esta razón, no podemos simplemente unir doc1 a d evitándolo, justamente, en el case d. Aquí, nos fijamos en el caso que d sea Texto. En tal caso, reescribimos a d como Texto s' d'. 
-      Sabemos por HI que si d cumplía el invariante d' y s' también lo van a hacer. Para evitar el incumplimiento del invariante devolvemos Texto s++s' d'. 
-      Esto funciona porque s y s' no tienen saltos de linea ni son vacios. En consecuencia, la concatenación tampoco los va a tener. Ademas de concatenar ambos Strings juntamos ambos Textos y quedaria algo que cumple el invariante. 
-      Por ende, en el caso de doc1 = Texto s d, la ftexto provoca que se siga cumpliendo el invariante. 
+  Conclusión: `∀doc1::Doc.∀doc2::Doc. doc1 <+> doc2` cumple el invariante, siempre y cuando doc1 y doc2 cumplan el invariante.
+  -}
 
-  El doc2 se mantiene igual a no ser que el doc1 termine con "Texto s1 Vacio" y doc2 inicie con Texto. En tal caso sucede lo explicado anteriormente y se modifica el primer texto del doc2. 
-  Esto cumple el invariante por la justificación dada, y como el resto del doc2 no se modifica, se sigue manteniendo el invariante.
-
-  Dados todos los casos cubiertos, demostramos que nuestra función de concatenación va a devolver el documento resultante d concatenar doc1 y doc2 que también cumple el invariante, asumiendo que doc1 y doc2 cumplen el invariante.
--}
 
 -- | Ejercicio 3 |
 
@@ -105,30 +117,41 @@ indentar n  = foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec)
   * Ningún String contiene saltos de linea;
   * No tiene dos Textos seguidos;
   * La indentación de sus Lineas es >= 0;
-  
  
-  Queremos ver que ∀doc::Doc.la funcion devuelve el documento indentado que sigue cumpliendo el invariante. 
-  Debido a que operamos recursivamente sobre el doc, hacemos induccion sobre su estrucutra.
+  Queremos ver que `∀doc::Doc. indentar n doc` devuelve un Doc mantiene el invariante, siempre y cuando doc cumpla el invariante y n > 0. 
+  Haremos inducción estructural sobre doc:
 
-  Caso base: doc1 = Vacio. 
-    La indentacion de algo que no tiene Linea n d debe de mantenerse igual. Por lo tanto un Doc vacio tiene que mantenerse igual, por eso devolvemos vacio.
-    Como un documento vacio cumple el invariante, comprobamos que el caso base lo cumple.
+  CASO BASE: doc = Vacio. 
+    indentar n Vacio =
+    foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) Vacio = 
+    Vacio
+    * El documento Vacio siempre cumple el invariante.
 
-  Caso recursivo: doc = Texto s d/Linea n d
-  Como hipotesis inductiva tenemos que d cumple el invariante, debemos ver que la extension lo sigue cumpliendo.
+  CASOS RECURSIVOS:
+    HI: Para el documento d, se tiene que `indentar n d` cumple el invariante.
+    QVQ: `indentar n (Texto s d)` e `indentar n (Linea m d)` cumplen el invariante.
 
-    Para ello, observemos el caso doc = Texto s d
-      La ftexto deja el texto como estaba originalmente en el doc ya que indentacion solo debe de modificar las lineas. 
-      Al suponer que este cumple el invariante, s no va a estar vacio ni contener el caracter de salto de linea. Asimismo, como no se toca la estrucutrura del doc, este se mantiene igual. 
-      Por último, como suponemos que doc cumple invariante, sabemos que el d no va a comenzar con Texto y, al mantenerlo todo igual, sigue manteniendo el invariante.
+    Caso doc = Texto s d:
+      indentar n (Texto s d) =
+      foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) (Texto s d) = 
+      Texto s (rec d) = 
+      Texto s (foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) d) =
+      Texto s (indentar n d)
+      * s no es string vacio ni salto de linea.
+      * No vamos a tener dos textos seguidos porque asumimos como precondición que doc1 = `Texto s d` cumple el invariante.
+      * Por HI, `indentar n d` cumple el invariante.
 
-    Luego, observemos el caso doc = Linea n d
-      En indentar, a cada linea, debemos sumarle un m que se nos pasa como parametro en la funcion. 
-      Como requiere sabemos que m >= 0, entonces, al suponer que doc cumple el invariante, en particular n va a ser => 0. Por lo tanto la suma tambien va a ser >= 0. 
-      Como en el lugar donde estaba Linea n d, queda Linea n+m d, no se modifica la estructura del documento. En consecuencia, no va a pasar que queden dos textos seguidos. Gracias a esto, se sigue cumpliendo el invariante.
+    Caso doc = Linea m d
+      indentar n (Linea m d) =
+      foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) (Linea m d) =
+      (\n1 rec -> Linea (n1+n) rec) m (rec d) = 
+      (\n1 rec -> Linea (n1+n) rec) m (foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) d) =
+      (\n1 rec -> Linea (n1+n) rec) m (indentar n d) =
+      Linea (m+n) (indentar n d)
+      * Como por precondición m >= 0 y n > 0, entonces m+n > 0, cumpliendo la condición del entero del invariante del constructor Linea.
+      * Por HI, `indentar n d` cumple el invariante.
 
-  Resumiendo, debido a que en el caso base, como en las extensiones, se sigue cumpliendo el invariante, si doc lo cumple y m >= 0, indentar(doc,m) va a cumplir el invariante
-
+  Conclusión: `∀doc::Doc. indentar n doc` devuelve un Doc mantiene el invariante, siempre y cuando doc cumpla el invariante y n > 0.
 -}
 
 
