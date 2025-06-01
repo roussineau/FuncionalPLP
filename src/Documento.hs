@@ -30,6 +30,7 @@ texto t | '\n' `elem` t = error "El texto no debe contener saltos de línea"
 texto [] = Vacio
 texto t = Texto t Vacio
 
+
 -- | Ejercicio 1 |
 
 foldDoc :: b -> (String -> b -> b) -> (Int -> b -> b) -> Doc -> b
@@ -55,11 +56,10 @@ infixr 6 <+>
                           Texto s2 rec' -> Texto (s1++s2) rec'
                           _ -> Texto s1 rec  
 
-
 {-
   Asumimos que tanto doc1 como doc2 cumplen el invariante:
-  * Ningún String de ambos docs es el String vacio;
-  * Ningún String de ambos docs contiene saltos de linea;
+  * Ningún String de ambos docs es el String vacío;
+  * Ningún String de ambos docs contiene saltos de línea;
   * No tienen dos Textos seguidos;
   * La indentación de sus Lineas es >= 0;
  
@@ -113,8 +113,8 @@ indentar n  = foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec)
 
 {-
   Asumimos que el doc que nos pasan cumple el invariante:
-  * Ningún String es el String vacio;
-  * Ningún String contiene saltos de linea;
+  * Ningún String es el String vacío;
+  * Ningún String contiene saltos de línea;
   * No tiene dos Textos seguidos;
   * La indentación de sus Lineas es >= 0;
  
@@ -137,8 +137,8 @@ indentar n  = foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec)
       Texto s (rec d) = 
       Texto s (foldDoc Vacio Texto (\n1 rec -> Linea (n1+n) rec) d) =
       Texto s (indentar n d)
-      * s no es string vacio ni salto de linea.
-      * No vamos a tener dos textos seguidos porque asumimos como precondición que doc1 = `Texto s d` cumple el invariante.
+      * s no es string vacio ni salto de línea.
+      * No vamos a tener dos textos seguidos porque asumimos como precondición que doc = `Texto s d` cumple el invariante.
       * Por HI, `indentar n d` cumple el invariante.
 
     Caso doc = Linea m d
